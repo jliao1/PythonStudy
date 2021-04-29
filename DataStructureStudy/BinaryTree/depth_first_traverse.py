@@ -47,7 +47,9 @@ def traverse_tree(root):
 # 先序遍历 root left right
 def preorder_traverse(root):
     # 8 3 1 6 4 7 10 14 13
-    if root is None:
+
+    if not root:   # 可译为：如果根本就没有这个root
+    # 上面这条语句等价于 if root is None:
         return
 
     print(root.val, end=' ')
@@ -63,7 +65,6 @@ def preorder_traverse(root):
 面试的时候，先问一下面试官，call stack空间算不算程序消耗。
 不算的话就是O(1)，没有占用额外的。
 算得话，与树的高度呈线性关系，介于logN和N之间（因为N个节点的二叉树画法是多种的）
-
 '''
 # 中序遍历 left - root - right
 def inorder_traverse(root):
@@ -99,17 +100,38 @@ def postorder_traverse(root):
 #     main()
 
 
+# leetcode: Validate Binary Search Tree
+# 解题思路： 验证是不是 valid 的 BST，对它进行中序遍历，得到的如果是一个递增序列，就对了
+def isValidBST(root):
+    # write your code here
+
+    if not root:
+        return True
+
+    if root is not None and root.left is None and root.right is None:
+        return True
+
+    result = inorder_traversal(root)
+
+    for i in range(len(result)-1):
+        if (result[i] >= result[i + 1]):
+            return False
+
+    return True
+
+# for leetcode: Validate Binary Search Tree
+def inorder_traversal(root):
+    res = []
+    if not root:
+        return res
+
+    res.extend(inorder_traversal(root.left))
+    res.append(root.val)
+    res.extend(inorder_traversal(root.right))
+
+    return res
+
 if __name__ == '__main__':
-
-    n = 4
-    result = [0, 1]
-    for i in range(n-2):
-        b = result[i]+result[i+1]
-        result.append(b)
-
-    print(result)
-    print( result[-1] )
-
 
     root = build_tree()
     preorder_traverse(root)
@@ -117,3 +139,13 @@ if __name__ == '__main__':
     inorder_traverse(root)
     print()
     postorder_traverse(root)
+
+    bool = isValidBST(root)
+    print(bool)
+
+    node_1 = TreeNode(1)
+    node_2 = TreeNode(1)
+    node_1.left = node_2
+
+    bool2 = isValidBST(node_1)
+    print(bool2)

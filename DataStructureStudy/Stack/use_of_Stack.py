@@ -14,7 +14,7 @@ def isValidParentheses(s):
             stack.append(ch)
         else:
             # 栈需非空 （非'([{'字符的话就要pop了，先检查栈是否为空，如果是空的话就不对，就 return False）
-            if not stack:
+            if not stack:  # 译为：如果stack为空，如果没有stack
                 return False
             # 判断栈顶是否匹配  （既然非空，还必须匹配正确，不匹配也return False）
             if ch == ']' and stack[-1] != '[' or ch == ')' and stack[-1] != '(' or ch == '}' and stack[-1] != '{':

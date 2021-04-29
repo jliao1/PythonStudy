@@ -13,7 +13,7 @@ class Stack:
         # 写法2：判断长度是不是0，是0就是空的
             # return len(self.items) == 0
         # 写法3：直接if这个list，如果是空的，if它结果是false；不空就是true
-        # if self.items:  # 翻译为：如果非空
+        # if self.items:  # 翻译为：如果items非空 或 如果items存在
         #     return False  # list非空 执行这条
         # else:
         #     return True  # list空 执行这条
