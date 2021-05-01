@@ -100,37 +100,6 @@ def postorder_traverse(root):
 #     main()
 
 
-# leetcode: Validate Binary Search Tree
-# 解题思路： 验证是不是 valid 的 BST，对它进行中序遍历，得到的如果是一个递增序列，就对了
-def isValidBST(root):
-    # write your code here
-
-    if not root:
-        return True
-
-    if root is not None and root.left is None and root.right is None:
-        return True
-
-    result = inorder_traversal(root)
-
-    for i in range(len(result)-1):
-        if (result[i] >= result[i + 1]):
-            return False
-
-    return True
-
-# for leetcode: Validate Binary Search Tree
-def inorder_traversal(root):
-    res = []
-    if not root:
-        return res
-
-    res.extend(inorder_traversal(root.left))
-    res.append(root.val)
-    res.extend(inorder_traversal(root.right))
-
-    return res
-
 if __name__ == '__main__':
 
     root = build_tree()
@@ -147,5 +116,3 @@ if __name__ == '__main__':
     node_2 = TreeNode(1)
     node_1.left = node_2
 
-    bool2 = isValidBST(node_1)
-    print(bool2)
