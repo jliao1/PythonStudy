@@ -173,13 +173,11 @@ def build_tree():
 # 测试用
 if __name__ == '__main__':
 
-    str = 'abcdef'
-    index = str.find('abc')
-    print(index)
 
-    # testRoot1 = build_tree()
-    # sol = Solution()
-    # list = sol.binaryTreeToLists(testRoot1)
+
+    testRoot1 = build_tree()
+    sol = Solution()
+    list = sol.binaryTreeToLists(testRoot1)
 
 
 

@@ -44,7 +44,7 @@ class Solution:
     小写字母转大写字母：
     写法一：
         lower_char = 'm'
-        upper_char = chr( ord(lower_char) - ord('a1 ) + ord('A') )
+        upper_char = chr( ord(lower_char) - ord('a') + ord('A') )
     写法二：
         upper_char = lower_char.upper( )
         
