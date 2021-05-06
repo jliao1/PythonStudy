@@ -7,6 +7,8 @@
 
 from BinarySearchTree import BST
 
+
+
 bst = BST()
 
 bst.add(10)

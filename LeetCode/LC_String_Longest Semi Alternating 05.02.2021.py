@@ -37,6 +37,15 @@ class Solution:
         return maxLen
 
 if __name__ == '__main__':
-    sol = Solution()
-    res = sol.longestSemiAlternatingSubstring('abaaaa')
-    print(res)
+    encodeString = [3,2,10,11]
+    for i in range(1, 1):
+        print(i)
+        print(encodeString[i] )
+        print()
+
+
+
+
+    # sol = Solution()
+    # res = sol.longestSemiAlternatingSubstring('abaaaa')
+    # print(res)
