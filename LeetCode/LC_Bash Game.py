@@ -4,6 +4,7 @@
 #     定可以一次拿完。所以这个时候先手必败。如果n是m+1的倍数，其实也很简单的，因为无论
 #     先手一次拿多少个物品，后手总是可以做出这样的策略：拿的物品和先手加在一起恰好是m+1
 #     个，这样若干回合之后哦一定又会回到我们说的第一种情况，先手必败。所以结论得证。
+# 网址分析参考：https://pipilove.gitbooks.io/leetcode/content/ba-shi-bo-595528-bash-game.html
 
 # reccursive版本：没懂
 def canWinBash( n):
