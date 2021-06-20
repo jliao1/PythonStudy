@@ -24,4 +24,8 @@ def canWinBash( n):
 
 
 if __name__ == '__main__':
-    print ( canWinBash(5) )
+    str = " aa   bbbbb         ccc  d"
+    str_list1 = str.split()
+    print(str_list1)  # 打印出来是 ['aa', 'bbbbb', 'ccc', 'd']
+    str_list2 = str.split(' ')
+    print(str_list2)  # 打印出来是 ['', 'aa', '', '', 'bbbbb', '', '', '', '', '', '', '', '', 'ccc', '', 'd']

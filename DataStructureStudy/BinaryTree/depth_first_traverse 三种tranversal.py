@@ -87,36 +87,16 @@ def postorder_traverse(root):
     print(root.val, end=' ')
 
 
-# def main():
-#     root = build_tree()
-#     preorder_traverse(root)
-#     print()
-#     inorder_traverse(root)
-#     print()
-#     postorder_traverse(root)
-#
-#
-# if __name__ == '__main__':
-#     main()
-
-
 
 
 if __name__ == '__main__':
 
-   pass
+    root = build_tree()
+    preorder_traverse(root)
+    print()
+    inorder_traverse(root)
+    print()
+    postorder_traverse(root)
 
-    # root = build_tree()
-    # preorder_traverse(root)
-    # print()
-    # inorder_traverse(root)
-    # print()
-    # postorder_traverse(root)
-    #
-    # bool = isValidBST(root)
-    # print(bool)
-    #
-    # node_1 = TreeNode(1)
-    # node_2 = TreeNode(1)
-    # node_1.left = node_2
+
 

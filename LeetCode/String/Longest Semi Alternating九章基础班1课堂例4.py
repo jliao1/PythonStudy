@@ -1,12 +1,24 @@
-# LeetCode：Longest Semi Alternating Substring 05.02.2021
-# 感悟：双指针，提炼解题的关键是 “it does not contain three identical consecutive characters”
-
-# 思路
-# （1）brute force  求出所有的子串, 找里面是否有连续相同的3个字母,
-#      找出没有的 连续相同3个字母的 长度最长的 那一个 （从长往短看，如果长的找到了，短的就不用看）
-# （2）联想到更有技巧的思路 用双指针来做
-
 '''
+LeetCode：Longest Semi Alternating Substring 05.02.2021
+Description
+You are given a string SS of length NN containing only characters a and b.
+A substring (contiguous fragment) of SS is called a semi-alternating substring
+if it does not contain three identical consecutive characters. In other words
+it does not contain either aaa or bbb substrings. Note that whole SS is its own substring.
+
+Write a function, which given a string SS, returns the length of the longest
+semi-alternating substring of SS.
+
+
+
+感悟：双指针，提炼解题的关键是 “it does not contain three identical consecutive characters”
+
+思路
+（1）brute force  求出所有的子串, 找里面是否有连续相同的3个字母,
+     找出没有的 连续相同3个字母的 长度最长的 那一个 （从长往短看，如果长的找到了，短的就不用看）
+（2）联想到更有技巧的思路 用双指针来做
+
+
 知识点：
 （1）两个指针，一般用来解决字符串匹配问题。
      一前一后滑动，框定一个窗口。计算窗口中元素的问题（让元素合法）。
@@ -17,6 +29,12 @@
     当你开始考虑3个的时候，就要去考虑 k 个，因为一般follow up questions
     不需要把 code 重新推翻写一遍，一个好的代码只要在原基础上修改一点就好了。
     比如一般计算two sum，就会让你计算 three sum，four sum
+
+自己做完后的总结：
+    双指针 left 和 right  可以写在while循环里前进
+    但如果 right 可以写在 for 循环里最好，这样可以处理每一位了
+    比如 for right in range(0, len(string)):
+
 '''
 
 class Solution:
@@ -25,8 +43,8 @@ class Solution:
     @return: length of longest semi alternating substring
     """
 
-    # 九章老师讲课
-    def longestSemiAlternatingSubstring(self, s):
+    # 九章老师讲课 版本
+    def longestSemiAlternatingSubstring1(self, s):
         # 比如  "baaabbabbb"
         # 双指针  | |
 
@@ -73,7 +91,43 @@ class Solution:
 
         return currMaxLen
 
+    # 我自己写的版本
+    def longestSemiAlternatingSubstring2(self, s):
+        # 比如  "baaabbabbb"
+        if s is None:
+            return 0
+
+        if len(s) < 3:
+            return len(s)
+
+        maxLen = 1
+        left = 0
+        right = 0
+
+        cnt = 1
+
+        while right+1 < len(s):
+            while cnt < 3 and right+1 < len(s):
+                if s[right] == s[right + 1]:
+                    cnt += 1
+                else:
+                    cnt = 1
+                right += 1
+
+            # 处理最后1位和倒数第2位不想等的情况
+            if s[right] != s[right - 1]:
+                right += 1
+
+            currLen = right - left
+            maxLen = max(currLen, maxLen)
+
+            left = right -1
+            cnt = 2
+
+
+        return maxLen
+
 if __name__ == '__main__':
     sol = Solution()
-    res = sol.longestSemiAlternatingSubstring('baaabaaabbb')
+    res = sol.longestSemiAlternatingSubstring2('baaabbabbb')
     print(res)
