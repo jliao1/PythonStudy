@@ -117,6 +117,7 @@ chr() Return the string representing a character whose Unicode
     str_list1 = str.split()
     print(str_list1)  # 打印出来是 ['aa', 'bbbbb', 'ccc', 'd']
 
-
+【字符串之间比较】
+    if A == B 是判断 两个字符串内容是否相等
 
 '''

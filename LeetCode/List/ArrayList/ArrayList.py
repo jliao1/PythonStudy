@@ -9,6 +9,10 @@
 # indexOf(list, val). 在list中查找值为val的数，返回它的index。如果没有返回-1。
 
 
+'''
+Array List 就是 List
+
+'''
 
 
 class ArrayListManager:

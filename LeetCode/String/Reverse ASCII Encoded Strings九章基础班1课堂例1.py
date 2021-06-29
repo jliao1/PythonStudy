@@ -11,24 +11,25 @@ class Solution:
     @return: a reversed decoded string
     """
 
-    def reverseAsciiEncodedString(self, encodeString):
-    #
-    #     # 写法1：每两个数字是一对地翻译，比如 字符 ‘6’‘5’是一对 -> 65 -> 'A'   最后切片翻转字符串
-    #     if encodeString is None:
-    #         return ""
-    #
-    #     res = ""  # 用来存储
-    #
-    #     for i in range(0, len(encodeString), 2):  # 每两个两个数字地取
-    #         # 比如 字符 ‘6’ ‘5’ 是一对 -> 65 -> 'A'
-    #         # string 强制转换 int（知识点）
-    #         ascNumber = int(encodeString[i]) * 10 + int(encodeString[i + 1])
-    #         # chr() 把 asc number 转换成 字符  （知识点）
-    #         # 然后用 + 连接  （知识点）
-    #         res = res + chr(ascNumber)
-    #         # 到目前得到 ‘ABC’， 然后用python里非常方便的 切片 来翻转它
-    #     return res[::-1]  # 切片翻转字符串（知识点）
+    def reverseAsciiEncodedString1(self, encodeString):
 
+        # 写法1：每两个数字是一对地翻译，比如 字符 ‘6’‘5’是一对 -> 65 -> 'A'   最后切片翻转字符串
+        if encodeString is None:
+            return ""
+
+        res = ""  # 用来存储
+
+        for i in range(0, len(encodeString), 2):  # 每两个两个数字地取
+            # 比如 字符 ‘6’ ‘5’ 是一对 -> 65 -> 'A'
+            # string 强制转换 int（知识点）
+            ascNumber = int(encodeString[i]) * 10 + int(encodeString[i + 1])
+            # chr() 把 asc number 转换成 字符  （知识点）
+            # 然后用 + 连接  （知识点）
+            res = res + chr(ascNumber)
+            # 到目前得到 ‘ABC’， 然后用python里非常方便的 切片 来翻转它
+        return res[::-1]  # 切片翻转字符串（知识点）
+
+    def reverseAsciiEncodedString2(self, encodeString):
         # 写法2: 直接倒序decode，不用翻转，
         # 九章老师上课讲的写法
         if encodeString is None:
@@ -44,3 +45,12 @@ class Solution:
             res += chr(asciiNumber)
         return res
 
+    # 自己写的
+    def reverseAsciiEncodedString3(self, encodeString):
+        n = len(encodeString)
+        res = []
+        for i in range(n - 1, 0, -2):
+            # 这步可以直接用九章老师写的
+            asc_num = int(encodeString[i]) + int(encodeString[i - 1]) * 10
+            res.append(chr(asc_num))
+        return ''.join(res)

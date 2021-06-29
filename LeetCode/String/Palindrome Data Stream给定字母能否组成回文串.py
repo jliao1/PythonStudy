@@ -33,12 +33,12 @@ class Solution:
     @return: Return the judgement stream
     """
     # 九章老师写法
-    def getStream(self, s):
+    def getStream1(self, s):
 
         # 写法一：九章老师写法
         # 先处理 edge case
         # 处理异常可以从 数据类型 方向来思考
-        if s is None or len(s) ==0:
+        if s is None or len(s) == 0:
             return []
 
         # 统计 字母出现奇数次 的字母的 个数
@@ -47,7 +47,7 @@ class Solution:
         # 目的是生成含有 len(s) 个 0 的 list：[0, 0, 0, 0, 0]
         result = [0 for _ in range(len(s))]
 
-        # 目的是生成含有 len(s) 个 0 的 list：[0, 0, 0, 0, 0]
+        # 目的是生成含有 26 个 0 的 list：[0, 0, 0, 0, 0]
         # 这个 letters 是(用来统计分类计数中的一个映射关系)，每个字母出现了几次
         letters = [0 for _ in range(26)]
 
@@ -67,38 +67,70 @@ class Solution:
 
         return result
 
-        # 写法二
-        # if s is None:
-        #     return []
-        #
-        # res = []
-        #
-        # # 需要数出现次数为奇数的字母，那就需要一个字母表 (需要有一个 对每个字母出现次数的 计数)
-        # alphabet = [0] * 26  # 开一个长度为26的初始值为0的这么一个list
-        # # index 0 代表a，1代表b…… 25代表z
-        #
-        # count = 0  # 还需要一个计数
-        # for i in range(len(s)):  # 开始读了
-        #     # 记录当前扫到的 每一个字母, 目前出现了多少次
-        #     alphabet[ord(s[i]) - ord('a')] += 1
-        #
-        #     # 如果出现的次数已经为奇数, count +1
-        #     if alphabet[ord(s[i]) - ord('a')] % 2 == 1:
-        #         count += 1
-        #     else: # 如果是偶数, count -1
-        #         count -= 1
-        #
-        #     # 利用回文串性质，如果 出现次数为奇书的 字母个数<=1才是回文串，不然就不是汇文串
-        #     if count > 1:
-        #         res.append(0)
-        #     else:
-        #         res.append(1)
-        # return res
+    # 另一种写法
+    def getStream2(self, s):
+        if s is None:
+            return []
+
+        res = []
+
+        # 需要数出现次数为奇数的字母，那就需要一个字母表 (需要有一个 对每个字母出现次数的 计数)
+        alphabet = [0] * 26  # 开一个长度为26的初始值为0的这么一个list
+        # index 0 代表a，1代表b…… 25代表z
+
+        count = 0  # 还需要一个计数
+        for i in range(len(s)):  # 开始读了
+            # 记录当前扫到的 每一个字母, 目前出现了多少次
+            alphabet[ord(s[i]) - ord('a')] += 1
+
+            # 如果出现的次数已经为奇数, count +1
+            if alphabet[ord(s[i]) - ord('a')] % 2 == 1:
+                count += 1
+            else: # 如果是偶数, count -1
+                count -= 1
+
+            # 利用回文串性质，如果 出现次数为奇书的 字母个数<=1才是回文串，不然就不是汇文串
+            if count > 1:
+                res.append(0)
+            else:
+                res.append(1)
+        return res
+
+
+    '''
+    这是我写的，但写错了
+    这个题目要仔细审题哦，我们的题目是需要你判断数据流的排列是否能组成回文串，不是当前是否是回文串
+    说到底还是英文不够好：
+    There is a data stream coming in, one lowercase letter at a time. 
+    Can the arrangement of the current data stream form palindrome string？
+    '''
+    def getStream3(self, s):
+        # 先处理 edge case
+        if s is None or s == '':
+            return []
+
+        res = [0] * len(s)
+        res[0] = 1
+        for i in range(1, len(s)):
+            if self.helper(s, i) == True:
+                res[i] = 1
+            else:
+                res[i] = 0
+        return res
+
+    def helper(self, s, idx):
+        mid = idx // 2
+        for i in range(0, mid+1):
+            if s[i] != s[idx - i]:
+                return False
+        return True
 
 if __name__ == '__main__':
     sol = Solution()
-    s = 'abbba'
-    num = sol.getStream(s)
+    s = 'kayak'
+    num = sol.getStream2(s)
     print(num)
+    print(s.find('ak'))
+
 
 

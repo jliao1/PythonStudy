@@ -6,12 +6,14 @@
 #     个，这样若干回合之后哦一定又会回到我们说的第一种情况，先手必败。所以结论得证。
 # 网址分析参考：https://pipilove.gitbooks.io/leetcode/content/ba-shi-bo-595528-bash-game.html
 
+
 # reccursive版本：没懂
 def canWinBash( n):
     if n <= 0:
         return False
     if n <= 3:
         return True
+            # 如果总量有 n-1 我输了    如果总量有 n-2 我输了    如果总量有 n-3 我输了
     return not canWinBash(n-1) or not canWinBash(n-2) or not canWinBash(n-3)
 
 

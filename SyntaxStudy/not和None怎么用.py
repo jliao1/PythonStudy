@@ -20,3 +20,8 @@ if __name__ == '__main__':
         print('当 root = None, if root is None 也也执行了!')
     if root == None:
         print('当 root = None, if root == None 也也执行了! ( 但最好别这么写，不太专业)')
+
+    a = ''
+    b = []
+    if not a and not b:
+        print('这条语句会执行')
