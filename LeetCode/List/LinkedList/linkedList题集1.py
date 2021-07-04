@@ -112,77 +112,8 @@ class Solution:
 
         return slow
 
-    '''
-    Given a list, rotate the list to the right by k places, where k is non-negative.
-    这是我自己写的版本
-    空间 O(N)
-    时间 O(1)
-    '''
-    def rotateRight1(self, head, k):
-        # write your code here
-        # 若head是null，或者head只是一个节点
-        if not head or head.next is None or k == 0:
-            return head
 
-        # 遍历求长度
-        curr = head
-        cnt = 1
-        tail = None
-        while curr.next:
-            cnt += 1
-            curr = curr.next
-            if not curr.next:
-                tail = curr
 
-        if k >= cnt:
-            k = k % cnt
-
-        curr = head
-        for i in range(1, cnt - k):
-            curr = curr.next
-
-        tail.next = head
-        head = curr.next
-        curr.next = None
-
-        return head
-
-    '''
-    这是九章老师讲课的版本，用 前/后 指针来看
-    要点是：能把一些功能模块拆成函数，就拆成函数写，先写核心模块，最后有时间再去完善功能函数，这样及时最后写不完功能函数但也有可能是过的
-    '''
-
-    def rotateRight2(self, head, k):
-        if head is None:
-            return head
-
-        # dummy 在这里的作用是 一会儿 head 在代码中会后移
-        # dummy.next 永远保留了最初对 head 节点的记录
-        dummy = ListNode(0)
-        dummy.next = head
-
-        length = self.get_len(head)
-
-        # 用链表长度取模
-        k = k % length
-
-        # 前/后 指针 登场
-        ahead, behind = dummy, dummy  # 前/后 指针，初始放在dummy
-
-        # 前指针先移动k步
-        for i in range(k):
-            ahead = ahead.next
-
-        # 然后开始同步移动 前/后 指针
-        while ahead.next:  # 只要ahead没到最后一位，继续移动, 直到 ahead 移到末尾停下
-            behind = behind.next
-            ahead = ahead.next
-
-        ahead.next = dummy.next
-        dummy.next = behind.next
-        behind.next = None
-
-        return dummy.next
 
     def get_len(self, head):
         l = 0

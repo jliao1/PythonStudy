@@ -7,12 +7,41 @@ class ListNode(object):
 
 class Solution:
 
-    def get_len(self, head):
-        cnt = 0
-        while head:
-            cnt += 1
-            head = head.next
-        return cnt
+    # 61. Rotate List
+    def rotateRight(self, head, k):
+        """
+        用 前/后 指针来看
+        小技巧是：能把一些功能模块拆成函数，就拆成函数写，先写核心模块，最后有时间再去完善功能函数，这样及时最后写不完功能函数但也有可能是过的
+        时间 O(n)  空间O(1)
+        """
+        # 处理异常，因为要进行k操作所以head不可以是None
+        if not head:
+            return head
+
+        length = self.get_len(head)
+        k = k % length           # 这样才能让 k 小雨 length
+
+        dummy = ListNode(0)  # dummy 在这里的作用是 一会儿 head 在代码中会后移
+        dummy.next = head    # dummy.next 这样做就 永远保留了最初对 head 节点的记录
+
+        # 前/后 指针 登场
+        ahead, behind = dummy, dummy  # 初始放在dummy
+
+        # 前指针先移动k步
+        for i in range(k):
+            ahead = ahead.next
+
+        # 然后开始同步移动 前/后 指针
+        while ahead.next:  # 只要ahead没到最后一位，继续移动, 直到 ahead 移到末尾停下
+            behind = behind.next
+            ahead = ahead.next
+
+        # 拼接
+        ahead.next = dummy.next
+        dummy.next = behind.next
+        behind.next = None
+
+        return dummy.next
 
     # LeetCode 1721. Swapping Nodes in a Linked List
     def swapNodes1(self, head: ListNode, k: int) -> ListNode:
@@ -200,10 +229,100 @@ class Solution:
 
         return head
 
+    # Leetcode 708. Insert into a Cyclic Sorted List 方法是Two-Pointers Iteration
+    def insert(self, node, x):
+        """
+        Time: O(n)
+        Space: O(1)
+        """
+        if node is None:
+            newNode = ListNode(x)
+            newNode.next = newNode
+            return newNode
+
+        #  Two-Pointers Iteration
+        prev = None  # keep an additional pointer which points to the precedent node
+        curr = node
+
+        # while loop最多跑一圈就好了
+        while True:
+            # loop over the linked list with two pointers
+            prev = curr
+            curr = curr.next
+
+            # The termination condition: sort out different cases
+
+            # 1st suitable place: prev.val ≤ x ≤ curr.val
+            if prev.val <= x and x <= curr.val:
+                break
+
+            # 2st suitable place: curr = Min, prev = Max value
+            #                             x ≤ Min      or  x ≥ Max
+            if (curr.val < prev.val) and (x <= curr.val or x >= prev.val):
+                break
+
+            # 3rd special case: the list contains uniform values or only 1 node
+            if curr is node:
+                break
+
+        # insertion
+        newNode = ListNode(x)
+        newNode.next = curr
+        prev.next = newNode
+
+        return node
 
 
+# class 内的功能函数_________________________________________________________________________________________________
 
-# class 内的功能函数______________________________________________________________________________________________
+    def get_len(self, head):
+        cnt = 0
+        while head:
+            cnt += 1
+            head = head.next
+        return cnt
+
+    # 返回 翻转后的 新头，新尾
+    def reverse1(self, head):
+        """
+        :param head:
+        :return: 翻转后的linked list的 新head 和 新tail
+        """
+        # curt表示前继节点
+        newHead = None
+        newTail = head
+        while head:
+            # temp指针存 head的下一个节点
+            temp = head.next
+            # head的下一个 指到 curt位置上
+            head.next = newHead
+            # 再把 curt 指针移到 当前head位置上
+            newHead = head
+            # 再把 head 指针移到 当前temp位置上
+            head = temp
+        return newHead, newTail
+
+    # 只返回 翻转后的 新头, 这个写法更简短
+    def reverse2(self, head):
+        prev, curr = None, head
+        while curr:
+            curr.next, prev, curr = prev, curr, curr.next
+        return prev
+
+    # 返回中间node，比如eg: 1 2 3 4 return 3
+    def findMiddle(self, head):
+        """
+        :param head:
+        :return: the middle of the linked list  eg：1 2 3 return 2, eg: 1 2 3 4 return 3
+        """
+        fast = head
+        slow = head
+
+        while fast and fast.next and fast.next.next:
+            fast = fast.next.next
+            slow = slow.next
+
+        return slow
 
     # 交换LinkedList里的2个nodes, 不管相邻不相邻，相不相同。代码来自 lint code 的511题的solution中，名叫 RickSJCA 用户提供的答案
     def __swap(self, pre1st, pre2nd):
@@ -248,47 +367,6 @@ class Solution:
         pre2nd.next = fst
         fst.next = sec_nxt
 
-    # 返回 翻转后的 新头，新尾
-    def reverse1(self, head):
-        """
-        :param head:
-        :return: 翻转后的linked list的 新head 和 新tail
-        """
-        # curt表示前继节点
-        newHead = None
-        newTail = head
-        while head:
-            # temp指针存 head的下一个节点
-            temp = head.next
-            # head的下一个 指到 curt位置上
-            head.next = newHead
-            # 再把 curt 指针移到 当前head位置上
-            newHead = head
-            # 再把 head 指针移到 当前temp位置上
-            head = temp
-        return newHead, newTail
-
-    # 只返回 翻转后的 新头, 这个写法更简短
-    def reverse2(self, head):
-        prev, curr = None, head
-        while curr:
-            curr.next, prev, curr = prev, curr, curr.next
-        return prev
-
-    # 返回中间node，比如eg: 1 2 3 4 return 3
-    def findMiddle(self, head):
-        """
-        :param head:
-        :return: the middle of the linked list  eg：1 2 3 return 2, eg: 1 2 3 4 return 3
-        """
-        fast = head
-        slow = head
-
-        while fast and fast.next and fast.next.next:
-            fast = fast.next.next
-            slow = slow.next
-
-        return slow
 
 # class 外的测试函数______________________________________________________________________________________________
 
@@ -303,10 +381,10 @@ def printList(head):
 
 if __name__ == '__main__':
 
-    node1 = ListNode(2)
-    node2 = ListNode(-1)
-    node3 = ListNode(0)
-    node4 = ListNode(4)
+    node1 = ListNode(1)
+    node2 = ListNode(1)
+    node3 = ListNode(1)
+    node4 = ListNode(1)
     node5 = ListNode(5)
     node6 = ListNode(6)
     node7 = ListNode(7)
@@ -316,7 +394,8 @@ if __name__ == '__main__':
 
     node1.next = node2
     node2.next = node3
-    # node3.next = node4
+    node3.next = node4
+    node4.next = node1
     # node4.next = node5
     # node5.next = node6
     # node6.next = node7
@@ -325,9 +404,7 @@ if __name__ == '__main__':
     # node9.next = node10
 
     sol = Solution()
+    res = sol.insert4(node1, 2)
+    pass
 
-    printList(node1)
 
-    res = sol.reorderList(node1)
-
-    printList(res)
