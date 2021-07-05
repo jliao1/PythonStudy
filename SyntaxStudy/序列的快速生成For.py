@@ -61,6 +61,8 @@ for range 倒序
 for i in range(100,0,-1):
     print(i) # 打印出从 100 到 1
 
+逆序遍历一个string s
+for i in range(len(s) - 1, -1, -1):
 
 快速开数组/开 list 的写法
 比如快速生成含有 26个0 的list：list = [0 for _ in range(26)]

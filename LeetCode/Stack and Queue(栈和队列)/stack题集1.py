@@ -1,4 +1,5 @@
-import collections
+from collections import deque
+
 class Solution:
 
     # Leetcode Easy 20. Valid Parentheses
@@ -196,7 +197,7 @@ class Solution:
 
     def __init__(self):
         self.idx = 0
-    # Leet code Medium 394. Decode String  用recursion写法，其实更好理解
+    # Leet code Medium 394. Decode String  用recursion写法依次接到屁股上，其实更好理解
     def decodeString3(self, s: str) -> str:
         """
         Time complexity: worst case下依然是 O(maxTimes^Nested·N)
@@ -250,11 +251,233 @@ class Solution:
                 repeats += int( stack.pop() ) * base
                 base *= 10
                                   # 为啥要 reversed() 因为之前的 str 被 pop 出时是逆序排列的
+                                  # 所以处理完的str也是逆序的，就要先翻转(恢复正顺)，再重复repeat次，然后再push进stack里
+                                  # 其实好像也可以 在最开始就整个翻转
             stack.append( ''.join( reversed(str) ) * repeats )
 
-            # str先翻转(变成原来的的排序)，再重复repeat次，然后再push进stack里
+
         return ''.join(stack)
 
+    # Lintcode 978 Medium · Basic Calculator (operand都是正数) 自己累死累活 用双端队列 做的 recursive 版本，结果依次接在屁股上
+    def calculate1(self, s):
+        """
+        时间空间复杂度，我分析不清楚了   这个好像也是O(n)吧，每个字符有可能处理2次，一次是入栈，第二次是出栈计算
+        """
+        numQ = deque()
+        operQ = deque()
+
+        res = 0
+        while self.i < len(s):
+            # 处理数字
+            if s[self.i].isdigit():
+                num = 0
+                while self.i < len(s) and s[self.i].isdigit():
+                    num = num * 10 + int(s[self.i])
+                    self.i += 1
+                # num 进数字队, 然后归零
+                numQ.append(num)
+
+
+            # 遇到空格，啥都不处理
+            while self.i < len(s) and s[self.i] == ' ':
+                self.i += 1
+
+            # + - 入符号队
+            if self.i < len(s) and s[self.i] in '+-':
+                operQ.append(s[self.i])
+                self.i += 1
+
+            # ( 就进入recursion
+            if self.i < len(s) and s[self.i] == '(':
+                self.i += 1  # 跳过 ‘(’
+                tempAnswer = self.calculate(s)
+                numQ.append(tempAnswer)
+
+            # 处理 数字和符号队，计算res，并return
+            if self.i < len(s) and s[self.i] == ')':
+                while operQ and numQ:
+                    num1 = numQ.popleft()
+                    num2 = numQ.popleft()
+                    oper = operQ.popleft()
+
+                    if oper == '+':
+                        numQ.appendleft(num1 + num2)
+                    elif oper == '-':
+                        numQ.appendleft(num1 - num2)
+                # 处理完了，更新 index
+                self.i += 1
+                if numQ:
+                    return numQ.popleft()
+
+        while operQ and numQ:
+            num1 = numQ.popleft()
+            num2 = numQ.popleft()
+            oper = operQ.popleft()
+
+            if oper == '+':
+                numQ.appendleft(num1 + num2)
+            elif oper == '-':
+                numQ.appendleft(num1 - num2)
+
+        if numQ:
+            return numQ.popleft()
+
+    # Lintcode 978 Medium · Basic Calculator (operand都是正数) 先翻转，再入栈出栈，翻转就是逆序处理 其实这是力扣224第一个解法
+    def calculate2(self, s: str) -> int:
+        """
+        时间 空间 复杂度都是 O(n)     n 是 the length of the string
+        但 each character can potentially get processed twice,
+        once when it's pushed onto the stack
+        and once when it's popped for processing of the final result (or a subexpression)
+        """
+        stack = []
+        n, operand = 0, 0
+
+        for i in range(len(s) - 1, -1, -1):
+            ch = s[i]
+
+            if ch.isdigit():
+
+                # Forming the operand - in reverse order.
+                operand = (10**n * int(ch)) + operand
+                n += 1
+
+            elif ch != " ":
+            # 到此时, 说明 ch既不是数字，也不是空格，那就开始处理 ) ( + - 这些符号了
+
+                # 如果 n 不等于0，这条语句为 True
+                # n不等于0时，说明此时是有 operand 的, 那就把它入栈
+                if n:
+                    # Save the operand on the stack as we encounter some non-digit.
+                    stack.append(operand)
+                    # 入栈后，n和operand归零
+                    n, operand = 0, 0
+
+                # When we encounter an opening parenthesis (, 由于我们一开始是逆序遍历的，so ( means an expression just ended.
+                # This calls for evaluation of the current sub-expression
+                if ch == '(':
+                    res = self.evaluate_expr2(stack)
+
+                    # 遇到 ( 开始计算，计算完了，意味着处理完了 (sub-expression), 就 pop 掉 ')' 符号
+                    stack.pop()
+
+                    # Append the evaluated result to the stack.
+                    stack.append(res)
+
+                # For other non-digits just push onto the stack.
+                else:
+                    stack.append(ch)
+
+        # Push the last operand to stack, if any.
+        if n:
+            stack.append(operand)
+
+        # Evaluate any left overs in the stack.
+        return self.evaluate_expr2(stack)
+    def evaluate_expr2(self, stack):
+        """
+        如何计算呢？
+        by popping operands and operators off the stack till
+        we pop corresponding closing parenthesis.
+        """
+        res = stack.pop() if stack else 0
+
+        # Evaluate the expression till we get corresponding ')'  由于是逆序处理，)  成了sub-expression结束的标志符
+        while stack and stack[-1] != ')':
+            sign = stack.pop()
+            if sign == '+':
+                res += stack.pop()
+            else:
+                res -= stack.pop()
+        return res
+
+    # Leetcode 224 Hard.Basic Calculator (operand含正/负数) 找出一套规律，两两结合
+    def basicCaculator1(self, s):
+        """
+        杂找出规律的呢？！思路：
+        由于operand不只是正数，还有负数，
+        所以 use - operator as the magnitude for the operand to the right of the - operator
+        Once we start using - as a magnitude for the operands,
+        we just have one operator left which is +, and + is associative 加号是可以前后随意结合关联的
+        因此 Thus evaluating the expression from right or left, won't change the result
+        Eg: A−B−C could be re-written as A+(−B)+(−C)
+
+        这道题的做法是
+        we will be evaluating most of the expression on-the-go
+        + - ）mark the end of an operand
+        when encountered + - ), it's time to use currOperand and the sign to the left of the operand for evaluation
+        operand 前的 sign 总要跟 operand 紧密结合在一起。即时计算，两两结合，才不会出幺蛾子
+        遇到 ( 是入栈标志
+        遇到 + - ）是计算标志
+        遇到 ） 是 pop 整合的标志
+
+        空间复杂度O(n)，n 是 the length of the string, stack 最多不可能装超过 O(n) 个元素
+        时间复杂度O(n)，n 是 the length of the string.
+                     这比领扣978 calculate2 好的点在于, every character in this approach will get processed exactly once
+                                         而 领扣978 each character can potentially get processed twice,
+                                                  once when it's pushed onto the stack
+                                                  and once when it's popped for processing of the final result (or a subexpression).
+                                                  That's why this approach is faster.
+        """
+        # 一个功能栈
+        stack = []
+        # Operand表示当前的操作数，初始状态下它是0
+        currOperand = 0
+        # sign表示当前的操作数的正负，初始状态下它是1
+        currSign = 1  # 1是被加，-1是被减
+        # 存结果的
+        currRes = 0
+
+        # 开始遍历啦
+        for c in s:
+
+            # case1：如果是数字，更新 current number
+            if c in '1234567890':  # 这句也可以写成 if c.isdigit():
+                currOperand = currOperand * 10 + int(c)
+
+            # case2：遇到 +- 计算符号，就计算出当然结果，更新 sign来决定下轮是加还是减currNum
+            #   英文解释是 when encountered + - ), it's time to use currOperand and the sign to the left of the operand for evaluation
+            elif c in '+-':
+                # Evaluate the expression to the left, save it
+                currRes = currRes + currSign * currOperand
+                currOperand = 0  # 得出暂时的 result 后 reset 一下 operand for next use
+
+                # save the encountered signed for next time use
+                if c == '+':
+                    currSign = 1
+                elif c == '-':
+                    currSign = -1
+
+            # 要把 ( 之前的状态 入栈保存了
+            elif c == '(':
+                # 入栈
+                stack.append(currRes)
+                stack.append(currSign)
+
+                # Reset operand and result,
+                # as if new evaluation begins for the new sub-expression
+                currSign = 1  # new sub-expression 中 currSign 初始状态是 1
+                currRes = 0  # new sub-expression 中 currRes 初始状态是 0
+
+            # 要计算从此 ) 到上一个 ( 的 currRes 了
+            elif c == ')':
+                # when encountered + - ), it's time to use currOperand and the
+                # sign to the left of the operand for evaluation，save it
+                currRes = currRes + currSign * currOperand
+                currOperand = 0  # 得出暂时的 result 后 reset 一下 operand for next use
+
+                # and ')' also marks end of expression within a set of parenthesis
+                # Its result is multiplied with sign on top of stack as stack.pop() is the sign before the parenthesis
+                lastSign = stack.pop()
+                # Then add to the next operand on the top as stack.pop() is the result calculated before this parenthesis
+                lastRes = stack.pop()
+                # update currRes = (lastRes on stack) + (lastSign on stack * (currRes from parenthesis))
+                currRes = lastRes + lastSign * currRes  # stack[-1] pop出来的是 ( 前入栈的 sign
+
+            # 其实如果以上if都没执行，就是遇到空格了，不过空格情况下，我们什么也不用做
+
+        # 最后一次计算结果了，并返回 (如果这已经是最后一个数了，不需要计算了，那么此时的currOperand是0，相当于就只返回currRes啦)
+        return currRes + currSign * currOperand
 
 
 
@@ -264,6 +487,6 @@ if __name__ == '__main__':
     s ='abc'
 
     sol = Solution()
-    res = sol.decodeString4("3[a2[pq]]de2[mn]")
+    res = sol.calculate2("2-(1+2)-10")
 
     print(res)
