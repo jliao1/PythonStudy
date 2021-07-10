@@ -115,10 +115,12 @@ class Solution:
     def findLeaves1(self, root):
         """
         为什么需要用到DFS？
+        因为貌似需要先访问孩子，再访问根节点。有点post order DFS 的味道
+
         The order in which the elements (nodes) will be collected in the final
         answer depends on the "height" of these nodes.
         Since height of any node depends on the height of it's children node,
-        hence we traverse the tree in a post-order manner (i.e. height of the
+        hence we traverse the tree in a post-order DFS manner (i.e. height of the
         childrens are calculated first before calculating the height of the given node).
 
         其实leetcode上方法1是，we'll store the pair (height, val) for all the nodes which
@@ -193,12 +195,63 @@ class Solution:
         newList.append([root.val])
         return newList
 
+    # lintcode Easy 376 · Binary Tree Path Sum (与力扣112 path sum类似)
+    def binaryTreePathSum1(self, root: TreeNode, targetSum: int) -> bool:
+        """
+        时间复杂度：O(n)，其中 n是节点的数量。我们每个节点只访问一次，因此时间复杂度为 O(n)。
+        空间复杂度：取决于最终返回结果的res的空间大小。
+                  最差情况下，当树为fully complete二叉树且每条路径都符合要求时，
+                  空间复杂度为O(Nlog(N))。 高度为logN，路径条数为 N/2 (最后一层的叶子节点数)
+        """
+        self.t = targetSum
+        self.lists = []
+
+        self.dfs_for_binaryTreePathSum(root, [], 0)
+
+        return self.lists
+    def dfs_for_binaryTreePathSum(self, root, pre_list, pre_sum):
+        if root:
+            cur_sum = pre_sum + root.val
+        else:
+            return
+
+        cur_list = pre_list + [root.val]
+
+        if cur_sum == self.t and not root.left and not root.right:
+            self.lists.append(cur_list)
+            return
+        else:
+            self.dfs_for_binaryTreePathSum(root.left, cur_list, cur_sum)
+
+            self.dfs_for_binaryTreePathSum(root.right, cur_list, cur_sum)
+
+    # 力扣112 Easy path sum
+    def hasPathSum(self, root, sum):
+        """
+        Time complexity : we visit each node exactly once, thus the time complexity is O(N),
+                          where N is the number of nodes.
+        Space complexity : In the worst case, the tree is completely unbalanced,
+                            e.g. each node has only one child node, the recursion call would occur N times
+                            (the height of the tree), therefore the storage to keep the call stack would be O(N).
+                            But in the best case (the tree is completely balanced), the height of the tree would be log(N).
+                            Therefore, the space complexity in this case would be O(log(N)).
+        """
+        if not root:
+            return False
+
+        sum -= root.val
+
+        # If node is a leaf, one checks if the the current sum is zero
+        if not root.left and not root.right:
+            return sum == 0
+
+        return self.hasPathSum(root.left, sum) or self.hasPathSum(root.right, sum)
 
 if __name__ == '__main__':
 
-    root = build_tree2()
+    root = build_tree1()
     sol = Solution()
-    l = sol.findLeaves2(root)
+    l = sol.hasPathSum(root,12)
     print(l)
 
 
