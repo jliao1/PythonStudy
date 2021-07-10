@@ -27,7 +27,7 @@ Operation	Average Case	Amortized Worst Case
 Copy		O(n)		O(n)
 append		O(1)		O(1) # 插入 right end
 appendleft	O(1)		O(1)
-pop		    O(1)		O(1) # pop from right end
+pop		    O(1)		O(1) # 默认是pop from right end
 popleft		O(1)		O(1)
 extend		O(k)		O(k)
 extendleft	O(k)		O(k)

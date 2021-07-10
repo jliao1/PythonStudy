@@ -28,8 +28,30 @@ class Solution:
 
         return dp[n % 3]
 
-    #这个写法空间复杂度较高
+    # 记忆优化搜索  （感觉就是动态规划呀）
     def fibonacci2(self, n):
+        # 异常检测
+        if n < 1:
+            return -1
+
+        # 记忆化，使用数组来记忆答案
+        arr = [0 for _ in range(n+1)]
+
+        arr[1] = 0
+        arr[2] = 1
+
+        # 记忆优化搜索获取答案
+        return self.getF1(n, arr)
+    def getF1(self, n, arr):
+        if n == 1 or arr[n] > 0:
+            return arr[n]
+        # 拆解
+        arr[n] = self.getF1(n-1, arr) +  self.getF1(n-2, arr)
+        return arr[n]
+
+
+    #这个写法空间复杂度较高
+    def fibonacci3(self, n):
         res =[]
         res.append(0);
         res.append(1);
@@ -42,5 +64,5 @@ class Solution:
 
 if __name__ == '__main__':
     sol = Solution()
-    res = sol.fibonacci2(6)
+    res = sol.fibonacci2(3)
     print(res)

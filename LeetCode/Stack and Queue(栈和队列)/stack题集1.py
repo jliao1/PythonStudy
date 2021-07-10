@@ -267,34 +267,34 @@ class Solution:
         operQ = deque()
 
         res = 0
-        while self.i < len(s):
+        while self.idx < len(s):
             # 处理数字
-            if s[self.i].isdigit():
+            if s[self.idx].isdigit():
                 num = 0
-                while self.i < len(s) and s[self.i].isdigit():
-                    num = num * 10 + int(s[self.i])
-                    self.i += 1
+                while self.idx < len(s) and s[self.idx].isdigit():
+                    num = num * 10 + int(s[self.idx])
+                    self.idx += 1
                 # num 进数字队, 然后归零
                 numQ.append(num)
 
 
             # 遇到空格，啥都不处理
-            while self.i < len(s) and s[self.i] == ' ':
-                self.i += 1
+            while self.idx < len(s) and s[self.idx] == ' ':
+                self.idx += 1
 
             # + - 入符号队
-            if self.i < len(s) and s[self.i] in '+-':
-                operQ.append(s[self.i])
-                self.i += 1
+            if self.idx < len(s) and s[self.idx] in '+-':
+                operQ.append(s[self.idx])
+                self.idx += 1
 
             # ( 就进入recursion
-            if self.i < len(s) and s[self.i] == '(':
-                self.i += 1  # 跳过 ‘(’
+            if self.idx < len(s) and s[self.idx] == '(':
+                self.idx += 1  # 跳过 ‘(’
                 tempAnswer = self.calculate(s)
                 numQ.append(tempAnswer)
 
             # 处理 数字和符号队，计算res，并return
-            if self.i < len(s) and s[self.i] == ')':
+            if self.idx < len(s) and s[self.idx] == ')':
                 while operQ and numQ:
                     num1 = numQ.popleft()
                     num2 = numQ.popleft()
@@ -305,7 +305,7 @@ class Solution:
                     elif oper == '-':
                         numQ.appendleft(num1 - num2)
                 # 处理完了，更新 index
-                self.i += 1
+                self.idx += 1
                 if numQ:
                     return numQ.popleft()
 
@@ -391,8 +391,8 @@ class Solution:
                 res -= stack.pop()
         return res
 
-    # Leetcode 224 Hard.Basic Calculator (operand含正/负数) 找出一套规律，两两结合
-    def basicCaculator1(self, s):
+    # Leetcode 224 Hard · Basic Calculator (operand含正/负数) 找出一套规律，两两结合, operator滞后currNumber一轮处理
+    def basicCaculator(self, s):
         """
         杂找出规律的呢？！思路：
         由于operand不只是正数，还有负数，
@@ -404,9 +404,12 @@ class Solution:
 
         这道题的做法是
         we will be evaluating most of the expression on-the-go
-        + - ）mark the end of an operand
-        when encountered + - ), it's time to use currOperand and the sign to the left of the operand for evaluation
-        operand 前的 sign 总要跟 operand 紧密结合在一起。即时计算，两两结合，才不会出幺蛾子
+        + - ）mark the end of an operand，when encountered + - ), it's time to use currOperand and the sign to the left of it for evaluation
+
+        we could add the values to the result beforehand and keep track of the lastest calculated number to the result,
+        thus eliminating the unnecessary need for the stack 减少了栈使用，
+        when encountered (，说明新的 sub-expression 开始了，这种时候是 necessary 的需要把之前的 result 先入栈
+
         遇到 ( 是入栈标志
         遇到 + - ）是计算标志
         遇到 ） 是 pop 整合的标志
@@ -479,14 +482,106 @@ class Solution:
         # 最后一次计算结果了，并返回 (如果这已经是最后一个数了，不需要计算了，那么此时的currOperand是0，相当于就只返回currRes啦)
         return currRes + currSign * currOperand
 
+    # leetcode 227 Medium Basic Calculator II ()，本题不包含括号和非负数, 写法不错用到了enumerate
+    def basicCalculatorII1(self, s: str) -> int:
+        """
+        思路跟力扣224像的地方在于，operator 滞后 currNumber 一轮 进行处理
+        不一样的地方在于，加工好每个数再入栈，最后sum(stack)算出结果
+        因为The expressions只需要are evaluated from left to right and the order of evaluation depends on the Operator Precedence
+        (但这种写法不能处理非负数啦，比如处理不了这种case: +48 + 2*-48)
+
+        时间空间复杂度O(n)，n是s的长度，
+        但potentially有可能处理一个字符2次(乘除时出栈再入栈)，处理每一个值也是2次(入栈再最后计算)
+        版本2更优化一些
+        """
+        stack = []
+        currNum = 0
+        lastOperator = '+' # 初始值
+
+        for i, char in enumerate(s):
+            # case1：c是数字，处理下
+            if char.isdigit():
+                currNum = 10 * currNum + int(char)
+
+            # case2：如果遇到的，不是数字也不是空格(那就是那些 加减乘除符号了)
+            #        或 i 已经扫到 最后一位，哪怕char是digit，也要处理
+            #        这时候开始处理
+            if (not char.isdigit() and not char.isspace()) or i == len(s) - 1:
+                # case2.1 遇到 + - 时，连上 operator proceeding it 再入栈
+                if lastOperator == '+':
+                    stack.append(+ currNum)
+                elif lastOperator == '-':
+                    stack.append(- currNum)
+
+                # case2.2 遇到 * / 时 弹栈顶数字，与currNum计算后(因为*/优先级高)，把结果入栈
+                elif lastOperator == '*':
+                    stack.append(stack.pop() * currNum)
+                elif lastOperator == '/':
+                    # (-3//4) 等于 -1, 所以要用 int(-3/4) 才能等于0
+                    stack.append(int(stack.pop() / currNum))
+
+                # 把 lastOperator 更新成本轮遇到测char
+                lastOperator = char
+                # 处理完这一轮了，currNum要清零
+                currNum = 0
+
+        return sum(stack)
+
+    # leetcode 227 Medium Basic Calculator II ()，本题不包含括号和非负数
+    def basicCalculatorII2(self, s: str) -> int:
+        """
+        思路跟 力扣224相同的地方在于，
+        we add the values to the result beforehand and keep track of the last calculated number,
+        thus eliminating the need for the stack
+        但在计算 3-2时，是把搞成 3 + -2 的形式了，所以
+
+        时间 O(n)  而且不用每个字符都处理2次，这只需要处理1次，所以更快
+        不用栈了，所以空间O(1)
+        """
+        if not s:
+            return 0
+
+        currNum, lastNum, res = 0,0,0
+
+        lastOperator = '+'
+
+        for i, char in enumerate(s):
+            if char.isdigit():
+                currNum = 10 * currNum + int(char)
+
+            if (not char.isdigit() and not char.isspace()) or i == len(s)-1:
+                if lastOperator in '+-':
+                    res = res + lastNum
+                    # 这一步是 把减号搞成 + 一个负数的形式
+                    lastNum = currNum if lastOperator == '+' else -currNum
+                elif lastOperator in '*/':
+                    lastNum = lastNum * currNum if lastOperator == '*' else int(lastNum / currNum)
+
+                lastOperator = char
+                currNum = 0
+
+        return res + lastNum
+
+
+
+
 
 
 import collections
 if __name__ == '__main__':
+    q = collections.deque()
+    q.append(1)
+    q.append(2)
+    q.append(3)
+    print(q)
+    print(q.pop())
+    print(q)
 
-    s ='abc'
+    # sol = Solution()
+    # # res = sol.basicCalculatorII("+48 + 2*-48")
+    # res = sol.basicCalculatorII2("14-3/2")
+    # print(res)
+    # list = [1,2,3,4,5]
+    # print(min(list))
 
-    sol = Solution()
-    res = sol.calculate2("2-(1+2)-10")
 
-    print(res)
