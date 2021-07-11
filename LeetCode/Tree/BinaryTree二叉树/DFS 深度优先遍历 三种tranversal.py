@@ -180,8 +180,11 @@ class Solution:
         results[level-1].append(root.val)
         return level
 
-    # lintcode(力扣366) Medium 650 · Find Leaves of Binary Tree （炫技解法，有空再看）不需要什么node depth。。python解法硬融两个list。长度不同的list头部对齐，后面用[]补充
+    # lintcode(力扣366) Medium 650 · Find Leaves of Binary Tree （炫技解法，有空再看）
     def findLeaves3(self, root):
+        """
+        不需要什么node depth。。python解法硬融两个list。长度不同的list头部对齐，后面用[]补充
+        """
         if not root:
             return []
         leftList = self.findLeaves3(root.left)
@@ -209,7 +212,7 @@ class Solution:
         self.dfs_for_binaryTreePathSum(root, [], 0)
 
         return self.lists
-    def dfs_for_binaryTreePathSum(self, root, pre_list, pre_sum):
+    def dfs_for_binaryTreePathSum1(self, root, pre_list, pre_sum):
         if root:
             cur_sum = pre_sum + root.val
         else:
@@ -224,6 +227,29 @@ class Solution:
             self.dfs_for_binaryTreePathSum(root.left, cur_list, cur_sum)
 
             self.dfs_for_binaryTreePathSum(root.right, cur_list, cur_sum)
+
+    # lintcode Easy 376 · Binary Tree Path Sum  删path的写法
+    def binaryTreePathSum2(self, root, target):
+        if not root:
+            return []
+        res = []
+        self.dfs_for_binaryTreePathSum2(root, target, [], res)
+        return res
+    def dfs_for_binaryTreePathSum2(self, root, target, path, res):
+        # 空节点
+        if root is None:
+            return
+        path.append(root.val)
+        # 叶节点
+        if not root.left and not root.right:
+            if target == root.val:
+                res.append(path[:])  # 新的内存
+            del path[-1]  # 原内存
+            return
+        # 非叶节点
+        self.dfs_for_binaryTreePathSum2(root.left, target - root.val, path, res)
+        self.dfs_for_binaryTreePathSum2(root.right, target - root.val, path, res)
+        del path[-1]
 
     # 力扣112 Easy path sum
     def hasPathSum(self, root, sum):
