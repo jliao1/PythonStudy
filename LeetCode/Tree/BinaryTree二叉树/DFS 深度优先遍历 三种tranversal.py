@@ -122,10 +122,12 @@ def build_tree3():
 
 class Solution:
 
-
-
     # lintcode(力扣94) Easy 67 · Binary Tree Inorder Traversal  这道题挑战让你用iterative写法
     def inorderTraversal_iterative(self, root):
+        """
+        时间空间都是 O(n)
+        """
+
         if root is None:
             return []
 
@@ -143,11 +145,10 @@ class Solution:
             node = stack.pop()
             if node.right:
                 node = node.right
+                # 把左孩子都压栈
                 while node:
                     stack.append(node)
                     node = node.left
-                # 打印测试用：
-                print(stack)
             if stack:
                 inorder.append(stack[-1].val)
 
@@ -157,7 +158,8 @@ class Solution:
     def preorderTraversal_iterative(self, root):
         """
         时间O(n)
-        空间O(n) depending on the tree structure, we could keep up to the entire tree, therefore, the space complexity is O(n)
+        空间O(n)
+        depending on the tree structure, we could keep up to the entire tree, therefore, the space complexity is O(n)
         """
         if root is None:
             return []
@@ -166,8 +168,12 @@ class Solution:
         while stack:
             node = stack.pop()
             preorder.append(node.val)
+
+            # 因为 stack 是先进后出。要先访问 left 后访问 right，所以 right 应该先进 stack
             if node.right:
                 stack.append(node.right)
+
+            # 然后 left 再进 stack (这样才能在 pop 的时候，才能 pop)
             if node.left:
                 stack.append(node.left)
         return preorder
@@ -421,13 +427,12 @@ class Solution:
 
 if __name__ == '__main__':
 
-
     root = build_tree2()
-    l1 = preorder_traverse(root)
+    l1 = inorder_traverse(root)
     print(l1)
 
     sol = Solution()
-    l2 = sol.preorderTraversal_iterative(root)
+    l2 = sol.inorderTraversal_iterative(root)
     print(l2)
 
 
