@@ -1,3 +1,5 @@
+import copy
+
 class TreeNode:
     def __init__(self, val):
         self.val = val
@@ -88,9 +90,9 @@ def build_tree2():
     """
         1
        / \
-      2   3
-         / \
-        4   5
+      3   2
+     / \
+    4   5
     """
     node_1 = TreeNode(1)
     node_2 = TreeNode(2)
@@ -108,8 +110,67 @@ def build_tree2():
     node_3.right = node_5
 
     return node_1
+def build_tree3():
+    """
+        1
+       / \
+    null  null
+    """
+    node_1 = TreeNode(1)
+
+    return node_1
 
 class Solution:
+
+
+
+    # lintcode(力扣94) Easy 67 · Binary Tree Inorder Traversal  这道题挑战让你用iterative写法
+    def inorderTraversal_iterative(self, root):
+        if root is None:
+            return []
+
+        # 创建一个 dummy node，右指针指向 root
+        # 并放到 stack 里，此时 stack 的栈顶 dummy
+        # 是 iterator 的当前位置
+        dummy = TreeNode(0)
+        dummy.right = root
+        stack = [dummy]
+
+        inorder = []
+        # 每次将 iterator 挪到下一个点
+        # 也就是调整 stack 使得栈顶到下一个点
+        while stack:
+            node = stack.pop()
+            if node.right:
+                node = node.right
+                while node:
+                    stack.append(node)
+                    node = node.left
+                # 打印测试用：
+                print(stack)
+            if stack:
+                inorder.append(stack[-1].val)
+
+        return inorder
+
+    # lintcode(力扣144) Easy 66 · Binary Tree Preorder Traversal  这道题挑战让你用iterative写法
+    def preorderTraversal_iterative(self, root):
+        """
+        时间O(n)
+        空间O(n) depending on the tree structure, we could keep up to the entire tree, therefore, the space complexity is O(n)
+        """
+        if root is None:
+            return []
+        stack = [root]
+        preorder = []
+        while stack:
+            node = stack.pop()
+            preorder.append(node.val)
+            if node.right:
+                stack.append(node.right)
+            if node.left:
+                stack.append(node.left)
+        return preorder
 
     # lintcode(力扣366) Medium 650 · Find Leaves of Binary Tree 用map
     def findLeaves1(self, root):
@@ -273,12 +334,105 @@ class Solution:
 
         return self.hasPathSum(root.left, sum) or self.hasPathSum(root.right, sum)
 
+    # lintcode(力扣257) Easy 480 · Binary Tree Paths 自己的解法
+    def binaryTreePaths1(self, root: TreeNode):
+        """
+        这是我自己写的，好处是，传参数时，
+        不会把越来越长的 curr_path 传进去
+        而且遍历完一个node后，curr_path会删减(回溯)
+
+        时间复杂度是O(n)因为DFS会访问每个节点至少1次
+
+        空间复杂度，call stack(函数调用栈)取决于递归的次数，最好情况下logN，最差情况下O(n)因为是一个linked list了
+        然后还有path_lists contains as many elements as leafs in the tree and hence couldn't be larger than
+        logN for the trees containing more than one element. Hence the space complexity is determined
+        by a stack call. （这句话没看懂）
+        """
+        self.path_lists = []
+        self.curr_path = []
+
+        self.dfsForBinaryTreePaths1(root)
+
+        return self.path_lists
+    def dfsForBinaryTreePaths1(self, root: TreeNode):
+        if not root:
+            return
+
+        self.curr_path.append(str(root.val))
+
+        # 如果是 叶子节点, 需要处理一下 append 进 path_lists 里
+        #      注意这一坨代码如果要放在这个位置，必须要 curr_path.pop() 一下，不然 curr_path 不能得到及时的更新
+        if not root.left and not root.right:
+            self.path_lists.append('->'.join(self.curr_path))
+            self.curr_path.pop()
+            return
+
+        self.dfsForBinaryTreePaths1(root.left)
+        self.dfsForBinaryTreePaths1(root.right)
+
+        # 如果对叶子节点的处理放在这个位置，就不用 curr_path.pop()，因为反正下面已pop了
+
+        # 处理完这个 root node 后，再把它从 curr_path 删掉
+        self.curr_path.pop()
+
+    # lintcode(力扣257) Easy 480 · Binary Tree Paths 令狐和leetcode上的答案差不多是这样
+    def binaryTreePaths2(self, root: TreeNode):
+        """
+        这个解法，写得会简单点，但传入construct_path()的参数 path 会越来越大，
+        不过，面试的时候，这样写好像也无所谓.
+        """
+        self.path_lists = []
+
+        def construct_path(root, curr_path):
+
+            if not root:
+                return
+
+            curr_path.append(str(root.val))
+
+            if not root.left and not root.right:
+                self.path_lists.append('->'.join(curr_path))
+            else:                         # 这个一定要写deep copy才可以pass by value
+                construct_path(root.left, copy.deepcopy(curr_path))
+                construct_path(root.right, copy.deepcopy(curr_path))
+
+        construct_path(root, [])
+
+        return self.path_lists
+
+    # lintcode(力扣100) Easy 469 · Same Tree自己写的答案一次过
+    def isIdentical(self, a, b):
+        """
+        Time complexity : O(N), where N is a number of nodes in the tree, since one visits each node exactly once.
+        Space complexity : O(log(N)) in the best case of completely balanced tree, O(N) in the worst case of completely unbalanced tree, to keep a recursion stack.
+        """
+        if not a and not b:
+            return True
+
+        if a and b and self.isSameVal(a, b):
+            return self.isIdentical(a.left, b.left) and self.isIdentical(a.right, b.right)
+        else:
+            return False
+    def isSameVal(self, node1, node2):
+        if node1.val == node2.val:
+            return True
+        else:
+            return False
+
 if __name__ == '__main__':
 
-    root = build_tree1()
+
+    root = build_tree2()
+    l1 = preorder_traverse(root)
+    print(l1)
+
     sol = Solution()
-    l = sol.hasPathSum(root,12)
-    print(l)
+    l2 = sol.preorderTraversal_iterative(root)
+    print(l2)
+
+
+
+    pass
 
 
 
