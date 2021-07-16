@@ -61,8 +61,8 @@ def build_tree2():
     node_8 = TreeNode(7)
     node_9 = TreeNode(13)
 
-    node_1.right = node_2
-    node_1.left = node_3
+    node_1.left = node_2
+    node_1.right = node_3
     node_3.left = node_4
     node_3.right = node_5
 
@@ -108,17 +108,16 @@ class Solution:
         时间复杂度是O(n)， 空间复杂度是 O(h)
         """
         self.maxD = 0
-        self.helperMaxDepth(root, 1)
+        self.dfsForMaxDepth1(root, 1)
         return self.maxD
-
-    def helperMaxDepth(self, root, height):
+    def dfsForMaxDepth1(self, root, height):
         if not root:
             return
 
         self.maxD = max(self.maxD, height)
 
-        self.helperMaxDepth(root.left, height+1)
-        self.helperMaxDepth(root.right, height+1)
+        self.dfsForMaxDepth1(root.left, height + 1)
+        self.dfsForMaxDepth1(root.right, height + 1)
 
     # Lintcode Easy 97 · Maximum Depth of Binary Tree 一句话搞定的递归写法
     def maxDepth2(self, root):
@@ -134,18 +133,90 @@ class Solution:
         就是算到每个 叶子节点的高度，然后取个最大值（不像方法1那样每个节点都取最大值）
         """
         self.maxD = 0
-        self.helper(root, 1)
+        self.dfsForMaxDepth3(root, 1)
         return self.maxD
-    def helper(self, root, height):
+    def dfsForMaxDepth3(self, root, height):
         if not root:  # 这句不能省的，因为有的节点，虽然不是叶子节点，但有可能有1个孩子，进到另一个孩子时root是Noone的
             return
         if not root.left and not root.right:
             self.maxD = max(self.maxD, height)
             return
-        self.helper(root.left, height+1)
-        self.helper(root.right, height+1)
+        self.dfsForMaxDepth3(root.left, height + 1)
+        self.dfsForMaxDepth3(root.right, height + 1)
 
-    # Lintcode Easy 482 · Binary Tree Level Sum 自己用BFS做的
+    # Lintcode(力扣111) Easy 155 · Minimum Depth of Binary Tree 自己最开始的写法用dfs，不高级但思路清晰
+    def minDepth1(self, root):
+        if not root:
+            return 0
+
+        self.minD = float('inf')
+        self.dfsForMinDepth1(root, 1)
+
+        return self.minD
+    def dfsForMinDepth1(self, root, depth):
+        if not root:
+            return 0
+
+        if not root.left and not root.right:
+            self.minD = min(self.minD, depth)
+            return
+
+        self.dfsForMinDepth1(root.left, depth + 1)
+        self.dfsForMinDepth1(root.right, depth + 1)
+
+    # Lintcode(力扣111) Easy 155 · Minimum Depth of Binary Tree 力扣上的第一个solution写法，写法清奇，部分参考
+    def minDepth2(self, root):
+        """
+        :type root: TreeNode
+        :rtype: int
+        """
+        if not root:
+            return 0
+
+        # 接下来3行这么写，可读性挺高，判断如果左右孩子都没有
+        children = [root.left, root.right]
+        if not any(children):  # if we're at leaf node
+            return 1
+
+        min_depth = float('inf')
+
+        for c in children:
+            if c:
+                min_depth = min(self.minDepth2(c), min_depth)
+
+        return min_depth + 1
+
+        # Lintcode Easy 482 · Binary Tree Level Sum 自己用BFS做的
+
+    # # Lintcode(力扣111) Easy 155 · Minimum Depth of Binary Tree 九章的一个答案
+    def minDepth3(self, root):
+        """
+        可以大概理解成4种情况
+         1. 当前节点有左右子树，分别计算左右子树的minimum depth，返回其中最小值 + 1
+         2. 当前节点只有左子树，返回左子树的minimum depth + 1
+         3. 当前节点只有右子树，返回右子树的minimum depth + 1
+         4. 当前节点没有左右子树（叶子节点），返回1
+
+        我们知道，在求最大深度时，递归条件是：每个节点的深度等于其左右子树最大深度值加上 1。
+        在求最小深度时，如果类比过来，令每个节点的深度等于其左右子树最小深度值加上 1，这样做是不对的。
+          tree = 1,2,#,3   以此为例，这是三层的树，
+                /          最小深度应该是3
+               2           但如果按照上述做法
+              /            节点1的右子树为空
+             3             我们会得出节点1的最小深度是1的结论，跟答案不符。
+                           正确做法是要判断一下左右子树是否有空子树，如果有，那么最小深度等于另一颗子树的深度加1。
+
+        时间复杂度O(n)  空间只考试call stack与树高度有关，最坏O(N)最好O(logN)
+        """
+        if root is None:
+            return 0
+        leftDepth = self.minDepth3(root.left)
+        rightDepth = self.minDepth3(root.right)
+        # 当左子树或右子树为空时，最小深度取决于另一颗子树
+        if leftDepth == 0 or rightDepth == 0:
+            return leftDepth + rightDepth + 1
+        return min(leftDepth, rightDepth) + 1
+
     def levelSum1(self, root, level):
         """
         用 BFS 做的，时间复杂度固定是O(n), 空间复杂度是 O(n)
@@ -195,9 +266,9 @@ class Solution:
 
 
 if __name__ == '__main__':
-    root = build_tree1()
+    root = build_tree2()
     sol = Solution()
-    l = sol.levelSum2(root, 3)
+    l = sol.minDepth2(root)
     print(l)
 
     pass

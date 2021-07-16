@@ -114,13 +114,44 @@ def build_tree3():
     """
         1
        / \
-    null  null
+      2   3
+     /
+    4
     """
     node_1 = TreeNode(1)
+    node_2 = TreeNode(2)
+    node_3 = TreeNode(3)
+    node_4 = TreeNode(4)
+
+    node_1.left = node_2
+    node_1.right = node_3
+    node_2.left = node_4
+
+    return node_1
+def build_tree4():
+    """
+        1
+       / \
+      3   2
+           \
+            4
+    """
+    node_1 = TreeNode(1)
+    node_2 = TreeNode(3)
+    node_3 = TreeNode(2)
+    node_4 = TreeNode(4)
+
+    node_1.left = node_2
+    node_1.right = node_3
+    node_3.right = node_4
 
     return node_1
 
 class Solution:
+    def __init__(self):
+        self.counter = 0
+        self.string = []   # lintcode(力扣606) Easy 1137 · Construct String from Binary Tree
+
 
     # lintcode(力扣94) Easy 67 · Binary Tree Inorder Traversal  这道题挑战让你用iterative写法
     def inorderTraversal_iterative(self, root):
@@ -425,16 +456,112 @@ class Solution:
         else:
             return False
 
+    # lintcode(力扣606) Easy 1137 · Construct String from Binary Tree
+    def tree2str(self, t):
+        """
+        类似于树的前序遍历，只需在遍历时在左子树和右子树最外面加一对括号即可。
+        注意如果右子树为空，则右子树不需要加括号；若左子树为空而右子树非空，则需要在右子树前加一对空括号表示左子树。
+        时间空间复杂度O(n)
+        """
+        if not t:
+            return ''
+
+        self.string.append(str(t.val))
+
+        if t.left:
+            self.string.append('(')
+            self.tree2str(t.left)
+            self.string.append(')')
+
+        if t.right:
+            if not t.left:
+                self.string.append('()')
+
+            self.string.append('(')
+            self.tree2str(t.right)
+            self.string.append(')')
+
+    # lintcode(力扣606) 470 · Tweaked Identical Binary Tree
+    def isTweakedIdentical1(self, a, b):
+        """
+        这是我自己的思路，进行中序遍历（value更小的，或者有value的，先遍历）
+        最后再比对两个树的结果，是否一样
+        因为是dfs所以时间复杂度O(n)，这个思路空间复杂度也是O(n)啦
+        可以看看那版本2令狐冲老师的思路
+        """
+        self.res1 = []
+        self.res2 = []
+
+        self.preorderDFS(a, self.res1)
+        self.preorderDFS(b, self.res2)
+
+        return self.res1 == self.res2
+    def preorderDFS(self, root, res):
+        self.counter += 1
+        if not root:
+            res.append(None)
+            return
+
+        res.append(root.val)
+
+        if root.left and root.right:
+            # 如果左右子树都存在，先遍历 value 更小的
+            if root.left.val <= root.right.val:
+                self.preorderDFS(root.left, res)
+                self.preorderDFS(root.right, res)
+            else:
+                # 再遍历 value 更大的
+                self.preorderDFS(root.right, res)
+                self.preorderDFS(root.left, res)
+        elif root.right and not root.left:
+            # 如果右子树存在，左子树不存在，先右再左
+            self.preorderDFS(root.right, res)
+            self.preorderDFS(root.left, res)
+        elif root.left and not root.right:
+            # 如果左子树存在，右子树不存在，先遍历 左 再右
+            self.preorderDFS(root.left, res)
+            self.preorderDFS(root.right, res)
+        elif not root.left and not root.right:
+            # 如果左右子树都不存在，先左再右
+            self.preorderDFS(root.left, res)
+            self.preorderDFS(root.right, res)
+
+    # lintcode(力扣606) 470 · Tweaked Identical Binary Tree
+    def isTweakedIdentical2(self, a, b):
+        """
+        判断该子树不交换左右子树和交换左右子树是否能与对应的子树一致，往下一个一个判断即可
+        时间O(n) 空间O(n)
+        """
+        self.counter += 1
+        # 情况1：a和b都空
+        if not a and not b:
+            return True
+        # 情况2：a和b都不空
+        if a and b and a.val == b.val:
+            # 不交换左右子树
+            r1 = self.isTweakedIdentical2(a.left, b.left)
+            r2 = self.isTweakedIdentical2(a.right, b.right)
+            # 交换了左右子树
+            r3 = self.isTweakedIdentical2(a.left, b.right)
+            r4 = self.isTweakedIdentical2(a.right, b.left)
+            return r1 and r2 or r3 and r4
+        # 情况3：剩下的情况直接return False
+        return False
+
 if __name__ == '__main__':
 
-    root = build_tree2()
-    l1 = inorder_traverse(root)
-    print(l1)
+    root3 = build_tree3()
+    root4 = build_tree4()
+
 
     sol = Solution()
-    l2 = sol.inorderTraversal_iterative(root)
-    print(l2)
+    res = sol.isTweakedIdentical1(root3,root4)
+    print(res)
+    print(sol.counter)
 
+
+    l3 = [1, 2, None, 4, None, None, 3, None, None]
+    l4 = [1, 2, None, 4, None, None, 3, None, None]
 
 
     pass
