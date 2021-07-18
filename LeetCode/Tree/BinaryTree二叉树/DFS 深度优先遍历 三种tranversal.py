@@ -152,7 +152,6 @@ class Solution:
         self.counter = 0
         self.string = []   # lintcode(力扣606) Easy 1137 · Construct String from Binary Tree
 
-
     # lintcode(力扣94) Easy 67 · Binary Tree Inorder Traversal  这道题挑战让你用iterative写法
     def inorderTraversal_iterative(self, root):
         """
@@ -349,7 +348,7 @@ class Solution:
         self.dfs_for_binaryTreePathSum2(root.right, target - root.val, path, res)
         del path[-1]
 
-    # 力扣112 Easy path sum
+    # 力扣112 Easy · path sum
     def hasPathSum(self, root, sum):
         """
         Time complexity : we visit each node exactly once, thus the time complexity is O(N),
@@ -548,7 +547,136 @@ class Solution:
         # 情况3：剩下的情况直接return False
         return False
 
+    # Lintcode(力扣663) Medium 864 · Equal Tree Partition 这是leetcode的解法，有点巧妙，用list来存数据的
+    def checkEqualTree1(self, root: TreeNode) -> bool:
+        """
+        用一个list存每个subtree的sum，最后pop掉root的sum。
+        如果list裡有root sum / 2 return True else False。
+        时间O(n)，空间call stack是O(n)
+        """
+        seen = []
+
+        def sum_(node):
+            if not node:
+                return 0
+            # postorder_traverse
+            seen.append(sum_(node.left) + sum_(node.right) + node.val)
+            return seen[-1]
+
+        total = sum_(root)
+        seen.pop()  # 把最后一个去掉，因为它是整个树的sum
+        return total / 2.0 in seen
+
+    # Lintcode(力扣663) Medium 864 · Equal Tree Partition 我自己写的答案
+    def checkEqualTree2(self, root: TreeNode) -> bool:
+        """
+        思路是：
+        我们可以先从根节点进行一次遍历, 然后就可以得到整棵树的节点值总和 sum
+        然后再进行一次遍历, 在这一次遍历的过程中判断每个节点的子树节点值总和是否等于sum/2, 如果有返回true即可
+        """
+        if not root:
+            return 0
+
+        self.whole_tree_sum = self.sum1(root)
+
+        self.isEqual = False
+        self.sum2(root.left)
+        self.sum2(root.right)
+
+        return self.isEqual
+    def sum2(self, root):
+        """
+        这个部分有点难写好
+        """
+        if not root:
+            return 0
+
+        '''
+        这个方法只有判断左右孩子不为空，才进入sum2()。不然进入了后return的是0，有可能整个树的sum也是0的
+        '''
+        if not root.left and not root.right:
+            sum = root.val
+
+        if root.left and not root.right:
+            sum = root.val + self.sum2(root.left)
+
+        if root.right and not root.left:
+            sum = root.val + self.sum2(root.right)
+
+        if root.left and root.right:
+            sum = root.val + self.sum2(root.left) + self.sum2(root.right)
+
+        if sum * 2 == self.whole_tree_sum:
+            self.isEqual = True
+
+        return sum
+    def sum1(self, root):
+        if not root:
+            return 0
+
+        return root.val + self.sum1(root.left) + self.sum1(root.right)
+
+    # Lintcode(力扣663) Medium 864 · Equal Tree Partition 九章答案, 用map做的
+    def checkEqualTree3(self, root):
+        """
+        借助 set (或 map) 只进行一次遍历, 即第一次遍历时把所有的权值总和放到 set 里,
+        最后获得整棵树的节点值总和时, 直接判断集合里是否有 sum / 2 即可.
+        """
+        self.mp = {}
+        sum_of_tree = self.dfsForCheckEqualTree3(root)
+
+        # edge case 1: sum是0的情况要特殊处理一下（因为0处以2依然等于2）
+        if sum_of_tree == 0:
+            # 如果 sum_of_tree 是 0，只要有子树sum是0的个数大于1个就满足
+            return self.mp[0] > 1
+
+        # normal case：
+        return (sum_of_tree/2) in self.mp
+    def dfsForCheckEqualTree3(self, root):
+        if not root:
+            return 0
+        curr_sum = root.val + self.dfsForCheckEqualTree3(root.left) + self.dfsForCheckEqualTree3(root.right)
+
+        if curr_sum in self.mp:
+            self.mp[curr_sum] += 1
+        else:
+            self.mp[curr_sum] = 1
+
+        return curr_sum
+
+    # Lintcode Easy 481 · Binary Tree Leaf Sum 有点DFS感觉
+    def leafSum1(self, root):
+        """
+        由于本质还是在遍历，所以时间复杂度O(n), call stack 空间复杂度 O(h)
+        """
+        self.res = 0  # 这个属性一般还是在init里面定义较好，这里只是告诉我们，在任意位置定义也可以
+        self.helperLeafSum(root)
+        return self.res
+    def helperLeafSum(self, root):
+        if not root: # 比写 if root is None: 更符合 python 编程的规范
+            return
+
+            # 如果是叶子，就加值
+        if not root.left and not root.right:
+            self.res = self.res + root.val
+
+        # 走到这里说明，不是叶子，就可以继续递归调用
+        self.helperLeafSum(root.left)
+        self.helperLeafSum(root.right)
+
+    # Lintcode Easy 481 · Binary Tree Leaf Sum 简洁版
+    def leafSum2(self, root):
+
+        if not root: return 0
+
+        if not root.left and not root.right:
+            return root.val
+
+        return self.leafSum(root.left) + self.leafSum(root.right)
+
 if __name__ == '__main__':
+    root = build_tree1()
+    res = postorder_traverse(root)
 
     root3 = build_tree3()
     root4 = build_tree4()

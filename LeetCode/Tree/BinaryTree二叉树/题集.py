@@ -16,7 +16,7 @@ def build_tree1():
          / \     \
         1   6     14
             /\    /
-           4  7  13
+           4  7  25
 
     """
     node_1 = TreeNode(8)
@@ -27,7 +27,7 @@ def build_tree1():
     node_6 = TreeNode(14)
     node_7 = TreeNode(4)
     node_8 = TreeNode(7)
-    node_9 = TreeNode(13)
+    node_9 = TreeNode(25)
 
     node_1.left = node_2
     node_1.right = node_3
@@ -67,38 +67,28 @@ def build_tree2():
     node_3.right = node_5
 
     return node_1
+def build_tree3():
+    """
+        0
+       / \
+     -1   1
+    """
+    node_1 = TreeNode(0)
+    node_2 = TreeNode(-1)
+    node_3 = TreeNode(1)
+    node_4 = TreeNode(4)
+    node_5 = TreeNode(5)
+    node_6 = TreeNode(14)
+    node_7 = TreeNode(4)
+    node_8 = TreeNode(7)
+    node_9 = TreeNode(13)
+
+    node_1.left = node_2
+    node_1.right = node_3
+
+    return node_1
 
 class Solution:
-
-    # Lintcode Easy 481 · Binary Tree Leaf Sum 有点DFS感觉
-    def leafSum1(self, root):
-        """
-        由于本质还是在遍历，所以时间复杂度O(n), call stack 空间复杂度 O(h)
-        """
-        self.res = 0  # 这个属性一般还是在init里面定义较好，这里只是告诉我们，在任意位置定义也可以
-        self.helperLeafSum(root)
-        return self.res
-    def helperLeafSum(self, root):
-        if not root: # 比写 if root is None: 更符合 python 编程的规范
-            return
-
-            # 如果是叶子，就加值
-        if not root.left and not root.right:
-            self.res = self.res + root.val
-
-        # 走到这里说明，不是叶子，就可以继续递归调用
-        self.helperLeafSum(root.left)
-        self.helperLeafSum(root.right)
-
-    # Lintcode Easy 481 · Binary Tree Leaf Sum 简洁版
-    def leafSum2(self, root):
-
-        if not root: return 0
-
-        if not root.left and not root.right:
-            return root.val
-
-        return self.leafSum(root.left) + self.leafSum(root.right)
 
     # Lintcode Easy 97 · Maximum Depth of Binary Tree 其实就是求二叉树高度
     def maxDepth1(self, root):
@@ -164,12 +154,8 @@ class Solution:
         self.dfsForMinDepth1(root.left, depth + 1)
         self.dfsForMinDepth1(root.right, depth + 1)
 
-    # Lintcode(力扣111) Easy 155 · Minimum Depth of Binary Tree 力扣上的第一个solution写法，写法清奇，部分参考
+    # Lintcode(力扣111) Easy 155 · Minimum Depth of Binary Tree 力扣上的第一个solution写法，写法清奇，可以参考部分
     def minDepth2(self, root):
-        """
-        :type root: TreeNode
-        :rtype: int
-        """
         if not root:
             return 0
 
@@ -188,7 +174,7 @@ class Solution:
 
         # Lintcode Easy 482 · Binary Tree Level Sum 自己用BFS做的
 
-    # # Lintcode(力扣111) Easy 155 · Minimum Depth of Binary Tree 九章的一个答案
+    # Lintcode(力扣111) Easy 155 · Minimum Depth of Binary Tree 九章的一个答案
     def minDepth3(self, root):
         """
         可以大概理解成4种情况
@@ -217,6 +203,36 @@ class Solution:
             return leftDepth + rightDepth + 1
         return min(leftDepth, rightDepth) + 1
 
+    # Lintcode(力扣111) Easy 155 · Minimum Depth of Binary Tree 用BFS做的
+    def minDepth4(self, root):
+        """
+        这题其实比较适合用 BFS 做（使用 DFS 会需要访问所有的子树并比较长度, 稍慢了一些）
+        採用 level-order BFS, 记录目前为止树的深度
+        只要遇到 leaf node 就 return
+        """
+        if not root:
+            return 0
+
+        # create queue to store nodes in current level
+        queue = deque([root])
+        depth = 0
+
+        # BFS
+        while queue:
+            depth += 1
+            for _ in range(len(queue)):
+                node = queue.popleft()
+
+                # if node is leaf node
+                if not node.left and not node.right:
+                    return depth
+
+                if node.left:
+                    queue.append(node.left)
+                if node.right:
+                    queue.append(node.right)
+
+    # Lintcode Easy 482 · Binary Tree Level Sum 用BFS做的
     def levelSum1(self, root, level):
         """
         用 BFS 做的，时间复杂度固定是O(n), 空间复杂度是 O(n)
@@ -264,11 +280,76 @@ class Solution:
             return root.val
         return self.levelSum2(root.left, level-1) + self.levelSum2(root.right, level-1)
 
+    # Lintcode(力扣623) Medium 1122 · Add One Row to Tree 自己用BFS做的
+    def addOneRow1(self, root, val, depth):
+        if depth == 1:
+            new_root = TreeNode(val)
+            new_root.left = root
+            return new_root
+
+        q = deque()
+        q.append(root)
+        cnt = 1
+
+        # BFS 在这里
+        while cnt <= depth - 2:
+            length = len(q)
+            for _ in range(length):
+                cur = q.popleft()
+                if cur.left:
+                    q.append(cur.left)
+                if cur.right:
+                    q.append(cur.right)
+            cnt += 1
+
+        # 开始处理目标层
+        while q:
+            cur = q.popleft()
+
+            new1 = TreeNode(val)
+            new2 = TreeNode(val)
+
+            if cur.left:
+                new1.left = cur.left
+
+            cur.left = new1
+
+            if cur.right:
+                new2.right = cur.right
+
+            cur.right = new2
+
+        return root
+
+    # Lintcode(力扣623) Medium 1122 · Add One Row to Tree 九章答案用dfs做的
+    def addOneRow2(self, root, v, d):
+        """
+        decrease and conquer的 dfs 方法
+        当 d == 2的时候，就可以连接新node了
+
+        时间空间复杂度与方法1一样的
+        """
+        if not root:
+            return None
+        if d==1:
+            new_root = TreeNode(v)
+            new_root.left = root
+            return new_root
+        if d==2:
+            root.left, root.left.left = TreeNode(v), root.left
+            root.right, root.right.right = TreeNode(v), root.right
+            return root
+        elif d>2:
+            root.left = self.addOneRow2(root.left, v, d - 1)
+            root.right = self.addOneRow2(root.right, v, d - 1)
+        return root
+
+
 
 if __name__ == '__main__':
-    root = build_tree2()
+    root = build_tree3()
     sol = Solution()
-    l = sol.minDepth2(root)
+    l = sol.checkEqualTree3(root)
     print(l)
 
     pass

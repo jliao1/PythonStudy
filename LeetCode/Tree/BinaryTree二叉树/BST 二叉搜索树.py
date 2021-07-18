@@ -27,6 +27,7 @@ best case：logN （平衡的BST）
 所以BST是个很适合于做记录的数据结构，因为插入查找特别快
 """
 
+# BST 的构建，添加，查找
 class BST:
 
     def __init__(self):
@@ -37,7 +38,7 @@ class BST:
     def add(self, val):
         self.__root = self.__add_helper(self.__root, val)
         #  这里需要 等号赋值，最开始root是 None，插入后要跟root连接起来，才不会是None
-    # 这个 helper 是要返回一个 树(根节点)的
+    # 这个 helper 是要返回一个值的，什么值呢？就是input进入去的root
     def __add_helper(self, root, val):
         if not root:                                     # 如果root压根儿就不存在，说明这个树没有
             return TreeNode(val)                         # 那要add的这个val就作为这个树唯一的node返回了
@@ -51,6 +52,7 @@ class BST:
             root.right = self.__add_helper(root.right, val)
 
         return root
+
 
     # 查找   找到返回 ture
     def contains(self, val):
@@ -112,7 +114,7 @@ class Solution:
         # 中序遍历结果要存在一个列表里
         self.res = []   # 这个成员变量 res 可以定义在这里，供本class下其他函数直接调用。但写在这里不规范，最好还是写在 init 里
 
-        self.inorder_traversal_helper(root)
+        self.dfsForIsValidBST1(root)
 
         # 判断 res 里是不是严格单调递增
         for i in range(1, len(self.res)):  # 判断范围从1到res的最高位就行. why 1? 因为1处跟前一位比较就行
@@ -120,29 +122,29 @@ class Solution:
                 return False
 
         return True
-    def inorder_traversal_helper(self, root):
+    def dfsForIsValidBST1(self, root):
         if not root:
             return
-        self.inorder_traversal_helper(root.left)
+        self.dfsForIsValidBST1(root.left)
         self.res.append(root.val)          # 在这里 append 不需要重新 extend在 res 上了，体会下
-        self.inorder_traversal_helper(root.right)
+        self.dfsForIsValidBST1(root.right)
 
     # lintcode(力扣98) Medium 95 · Validate Binary Search Tree
     def isValidBST2(self, root: TreeNode) -> bool:
         """
-        worst case下才是O(n)了，
-        但是 inorder里() if 语句太多了，导致 O(n)的系数变大，最终运行时间变长
+        worst case下才是O(n)，
+        这是我自己写的，run得比较慢，因为 但是 dfsForIsValidBST2()里 if 语句太多了，导致 O(n)的系数变大，最终运行时间变长
         方法3的运行时间还行，但……感觉又不readble了，反正可以都看看
         """
         self.prev = -float('inf')
-        isValid = self.inorder(root)
+        isValid = self.dfsForIsValidBST2(root)
         return isValid
-    def inorder(self, root):
+    def dfsForIsValidBST2(self, root):
 
         if not root:
             return True
 
-        isLeftOK = self.inorder(root.left)
+        isLeftOK = self.dfsForIsValidBST2(root.left)
 
         isRootOK = True if self.prev < root.val else False
 
@@ -151,7 +153,7 @@ class Solution:
 
         if isLeftOK and isRootOK:
 
-            isRightOK = self.inorder(root.right)
+            isRightOK = self.dfsForIsValidBST2(root.right)
 
         else:
             return False
@@ -161,23 +163,23 @@ class Solution:
     # lintcode(力扣98) Medium 95 · Validate Binary Search Tree
     def isValidBST3(self, root):
         """
-        这种recurssive写法太难懂了，还是版本1更readable
+        这种recurssive写法也不错，但感觉还是版本1更readable
         """
         def inorder(root):
             if not root:
                 return True
 
-            # 如果左孩子不满足，return False
+            # 访问左孩子：如果左孩子不满足，return False
             if not inorder(root.left):
                 return False
 
-            # 本该小于的，但如果大于了就返回 false
+            # 访问中间：本该小于的，但如果大于了就返回 false
             if self.prev >= root.val:
                 return False
-
             # 能走到这里说明目前正常，update一下prev变成当前的root value
             self.prev = root.val
 
+            # 访问右孩子：
             return inorder(root.right)
 
         # 这个主要是用来记录前一个点的value
@@ -187,7 +189,7 @@ class Solution:
     # leetcode Medium 98. Validate Binary Search Tree
     def isValidBSTWrongAnswer(self, root):
         """
-        这个是错误答案
+        这个是sheila教的错误答案
         这个写法，只能保证 每一个节点，left child < 自己 < right child
         而BST 应该是 所有的 left children 都 < 自己 < 所有的 right children
         """
@@ -200,6 +202,81 @@ class Solution:
         a = self.isValidBST4(root.left)
         b = self.isValidBST4(root.right)
         return a and b
+
+    # lintcode(力扣108) Easy 177 · Convert Sorted Array to Binary Search Tree With Minimal Height 九章答案
+    def sortedArrayToBST1(self, A):
+        """
+        1. 一个sorted array虽然是一个BST的中序遍历结果，但是它不能推出唯一的一个BST结构
+           意思是 "sorted array -> BST" has multiple solutions
+        2. 为了高度尽量小，我们这个tree得要balanced
+           （the depths of the two subtrees of every node never differ by more than 1）
+           但这也不能使得tree唯一
+        3. the height-balanced restriction means that
+           at each step one has to pick up the number in the middle as a root
+           That works fine with arrays containing odd number of elements
+           but there is no predefined choice for arrays with even number of elements
+           One could choose left middle element, or right middle one,
+           and both choices will lead to different height-balanced BSTs,
+           both solutions will be accepted
+        """
+        return self.convert(A, 0, len(A) - 1)
+    def convert(self, A, start, end):
+        if start > end:
+            return None
+        if start == end:
+            return TreeNode(A[start])
+
+        # always choose left middle node as a root
+        mid = (start + end) // 2
+        root = TreeNode(A[mid])
+        root.left = self.convert(A, start, mid - 1)
+        root.right = self.convert(A, mid + 1, end)
+        return root
+
+    # lintcode(力扣108) Easy 177 · Convert Sorted Array to Binary Search Tree 力扣答案
+    def sortedArrayToBST2(self, A):
+        """
+        这种写法思路与方法1类似，也是 in-place的，只不过把 递归函数写在 主函数里啦
+        Time complexity: O(N) since we visit each node exactly once.
+        Space complexity: O(N). O(N) to keep the output, and O(logN) for the recursion stack.
+        """
+        def helper(left, right):
+            if left > right:
+                return None
+
+            # always choose left middle node as a root
+            p = (left + right) // 2
+            '''
+            # 如果选择右边就这么写 always choose right middle node as a root
+            p = (left + right) // 2 
+            if (left + right) % 2:
+                p += 1            
+            '''
+
+            # preorder traversal: node -> left -> right
+            root = TreeNode(A[p])
+            root.left = helper(left, p - 1)
+            root.right = helper(p + 1, right)
+            return root
+
+        return helper(0, len(A) - 1)
+
+
+    # lintcode(力扣108) Easy 177 · Convert Sorted Array to Binary Search Tree With Minimal Height
+    def sortedArrayToBST3(self, A):
+        """
+        这个方法比方法1和2要慢，因为1和2是in-place的
+        而这个 切片变慢了，因为会生成新的数组，导致速度变慢
+        """
+        return self.converse(A)
+    def converse(self, B):
+        if not B:
+            return None
+        mid = (len(B) - 1) // 2
+        root = TreeNode(B[mid])
+        root.left = self.converse(B[0:mid])  # 切片变慢了
+        root.right = self.converse(B[mid+1:len(B)])
+        return root
 
 
 def build_tree():
@@ -229,6 +306,7 @@ def build_tree():
     return node_1
 
 if __name__ == '__main__':
+
     root = build_tree()
     sol = Solution()
     res = sol.isValidBST1(root)

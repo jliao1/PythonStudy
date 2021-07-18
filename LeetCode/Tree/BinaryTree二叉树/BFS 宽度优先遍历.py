@@ -307,6 +307,7 @@ class Solution:
         return lists
 
 
+
 # 建立个二叉树，测试用
 def build_tree1():
     """
@@ -367,14 +368,31 @@ def build_tree2():
     node_3.right = node_5
 
     return node_1
+def build_tree3():
+    """
+        1
+       / \
+      2   3
+     /
+    4
+    """
+    node_1 = TreeNode(1)
+    node_2 = TreeNode(2)
+    node_3 = TreeNode(3)
+    node_4 = TreeNode(4)
+
+    node_1.left = node_2
+    node_1.right = node_3
+    node_2.left = node_4
+
+    return node_1
 
 if __name__ == '__main__':
 
-    l1 = [1,3,5]
-    l2 = [4,5,6]
-    l1.extend(l2) if l2 else None
-
-    root = build_tree2()
+    root = build_tree3()
+    sol = Solution()
+    l = sol.addOneRow2(root, 5, 4)
+    print(l)
 
 
 
