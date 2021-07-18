@@ -7,6 +7,7 @@ class TreeNode:
         self.val = val
         self.left, self.right = None, None
 
+
 # 建立个二叉树，测试用
 def build_tree1():
     """

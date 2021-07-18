@@ -218,16 +218,21 @@ class Solution:
            One could choose left middle element, or right middle one,
            and both choices will lead to different height-balanced BSTs,
            both solutions will be accepted
+
+           如果输入的array是[0,1,2,3,4]
+           得到的tree就是   3
+                         / \
+                        0   3
+                         \   \
+                         1   4
         """
         return self.convert(A, 0, len(A) - 1)
     def convert(self, A, start, end):
         if start > end:
             return None
-        if start == end:
-            return TreeNode(A[start])
 
         # always choose left middle node as a root
-        mid = (start + end) // 2
+        mid = (start + end) // 2  # //是整除的意思
         root = TreeNode(A[mid])
         root.left = self.convert(A, start, mid - 1)
         root.right = self.convert(A, mid + 1, end)
@@ -266,7 +271,7 @@ class Solution:
     def sortedArrayToBST3(self, A):
         """
         这个方法比方法1和2要慢，因为1和2是in-place的
-        而这个 切片变慢了，因为会生成新的数组，导致速度变慢
+        而这个 切片语句使速度变慢了，因为会生成新的数组，导致速度变慢
         """
         return self.converse(A)
     def converse(self, B):
@@ -308,8 +313,9 @@ def build_tree():
 if __name__ == '__main__':
 
     root = build_tree()
+    array = [0,1,2,3,4]
     sol = Solution()
-    res = sol.isValidBST1(root)
+    res = sol.sortedArrayToBST1(array)
     print(sol.cnt)
 
 

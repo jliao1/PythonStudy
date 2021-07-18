@@ -34,6 +34,7 @@ breadth_first_traverse_by_level(root) 和 breadth_first_traverse(root)
         所以答案是，由节点数最多的那一层的节点数决定，O(n)
 """
 
+
 # 基本的 宽度优先遍历写法
 def breadth_first_traverse(root):
     """
