@@ -57,14 +57,14 @@ class Solution:
         # Write your code here
         bold = set()
         for w in words:
-            i, end = S.find(w, 0), -1
+            i, end = S.find_target_node_and_its_parent(w, 0), -1
             # i >= 0 说明在S里找到w了，否则 没找到
             while i >= 0:
                 # 这句是 把 range 里的 数字 都加到 bold 里
                 bold.update(range(max(i, end + 1), i + len(w)))
                 end = i + len(w) - 1
                 # 从 i+1 位开始，接着 继续找 w
-                i = S.find(w, i + 1)   # find里，第一个参数是要寻找的sub，第二个是从哪里开始找，第三个参数是找到哪位之前
+                i = S.find_target_node_and_its_parent(w, i + 1)   # find里，第一个参数是要寻找的sub，第二个是从哪里开始找，第三个参数是找到哪位之前
 
         # 代码走到这里，也就得出了 应该加粗 S 的哪些 index
         # 下面是我没做出来的部分（理解不到位）， in 和 不in 有什么区别

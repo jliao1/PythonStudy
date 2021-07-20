@@ -1,56 +1,5 @@
 import copy
-
-
-class TreeNode:
-    def __init__(self, val):
-        self.val = val
-        self.left = None
-        self.right = None
-# 前中后(在sub tree中视角是)根被遍历的位置
-# 子孩子是，默认先左后右哈
-
-# 先序遍历 root left right
-def preorder_traverse(root):
-    # 8 3 1 6 4 7 10 14 13
-
-    if not root:   # 可译为：如果根本就没有这个root
-    # 上面这条语句等价于 if root is None:
-        return
-
-    print(root.val, end=' ')
-    preorder_traverse(root.left)
-    preorder_traverse(root.right)
-
-'''
-空间复杂度
-如果在函数里开了个列表，列表里的元素是存在堆中的，就会占用堆空间。
-如果函数进行了递归调用，在递归的时候，会占用系统的 调用栈。
-所以在分析空间复杂度的时候，要分析 heap + stack 空间加起来。
-
-面试的时候，先问一下面试官，call stack空间算不算程序消耗。
-不算的话就是O(1)，没有占用额外的。
-算得话，与树的高度呈线性关系，介于logN和N之间（因为N个节点的二叉树画法是多种的）
-'''
-# 中序遍历 left - root - right  用处是：判断是不是BST对它进行中序遍历，得到的如果是一个递增(非递减)序列，就对了
-def inorder_traverse(root):
-    # 1 3 4 6 7 8 10 13 14
-    if root is None:
-        return
-
-    inorder_traverse(root.left)
-    print(root.val, end=' ')
-    inorder_traverse(root.right)
-
-# 后序遍历 left - right - root
-def postorder_traverse(root):
-    # 1 4 7 6 3 13 14 10 8
-    if root is None:
-        return
-
-    postorder_traverse(root.left)
-    postorder_traverse(root.right)
-    print(root.val, end=' ')
-
+from collections import deque
 # 建立个二叉树，测试用
 def build_tree1():
     """
@@ -148,6 +97,63 @@ def build_tree4():
 
     return node_1
 
+class TreeNode:
+    def __init__(self, val):
+        self.val = val
+        self.left = None
+        self.right = None
+
+# 知识点
+'''
+- 前中后(在sub tree中视角是)遍历，是根被遍历的位置, 子树默认是先左后右哈
+- 时间复杂度O(n)
+- 空间复杂度是 O(h), call stack最深存树的高度个 recursion function
+'''
+
+
+# 先序遍历 root left right
+def preorder_traverse(root):
+    # 8 3 1 6 4 7 10 14 13
+
+    if not root:   # 可译为：如果根本就没有这个root
+    # 上面这条语句等价于 if root is None:
+        return
+
+    print(root.val, end=' ')
+    preorder_traverse(root.left)
+    preorder_traverse(root.right)
+
+'''
+空间复杂度
+如果在函数里开了个列表，列表里的元素是存在堆中的，就会占用堆空间。
+如果函数进行了递归调用，在递归的时候，会占用系统的 调用栈。
+所以在分析空间复杂度的时候，要分析 heap + stack 空间加起来。
+
+面试的时候，先问一下面试官，call stack空间算不算程序消耗。
+不算的话就是O(1)，没有占用额外的。
+算得话，与树的高度呈线性关系，介于logN和N之间（因为N个节点的二叉树画法是多种的）
+'''
+# 中序遍历 left - root - right  用处是：判断是不是BST对它进行中序遍历，得到的如果是一个递增(非递减)序列，就对了
+def inorder_traverse(root):
+    # 1 3 4 6 7 8 10 13 14
+    if root is None:
+        return
+
+    inorder_traverse(root.left)
+    print(root.val, end=' ')
+    inorder_traverse(root.right)
+
+# 后序遍历 left - right - root
+def postorder_traverse(root):
+    # 1 4 7 6 3 13 14 10 8
+    if root is None:
+        return
+
+    postorder_traverse(root.left)
+    postorder_traverse(root.right)
+    print(root.val, end=' ')
+
+
 class Solution:
     def __init__(self):
         self.counter = 0
@@ -155,10 +161,6 @@ class Solution:
 
     # lintcode(力扣94) Easy 67 · Binary Tree Inorder Traversal  这道题挑战让你用iterative写法
     def inorderTraversal_iterative(self, root):
-        """
-        时间空间都是 O(n)
-        """
-
         if root is None:
             return []
 
@@ -189,7 +191,7 @@ class Solution:
     def preorderTraversal_iterative(self, root):
         """
         时间O(n)
-        空间O(n)
+        空间O(h)
         depending on the tree structure, we could keep up to the entire tree, therefore, the space complexity is O(n)
         """
         if root is None:
@@ -232,7 +234,6 @@ class Solution:
         下面这个方法比较好，跟上面有异曲同工，但去掉了sorting，就 placing each element (val) to
         its correct position in the solution map/array.
         遍历树获取每一个node的depth，再以depth为key储存相同depth的node.val在map里
-        时间空间复杂度都是 O(n)
         """
         ans = []
         self.height_map = {}
@@ -354,7 +355,8 @@ class Solution:
         """
         Time complexity : we visit each node exactly once, thus the time complexity is O(N),
                           where N is the number of nodes.
-        Space complexity : In the worst case, the tree is completely unbalanced,
+        Space complexity : 取决于高度啦
+                            In the worst case, the tree is completely unbalanced,
                             e.g. each node has only one child node, the recursion call would occur N times
                             (the height of the tree), therefore the storage to keep the call stack would be O(N).
                             But in the best case (the tree is completely balanced), the height of the tree would be log(N).
@@ -461,7 +463,6 @@ class Solution:
         """
         类似于树的前序遍历，只需在遍历时在左子树和右子树最外面加一对括号即可。
         注意如果右子树为空，则右子树不需要加括号；若左子树为空而右子树非空，则需要在右子树前加一对空括号表示左子树。
-        时间空间复杂度O(n)
         """
         if not t:
             return ''
@@ -530,7 +531,6 @@ class Solution:
     def isTweakedIdentical2(self, a, b):
         """
         判断该子树不交换左右子树和交换左右子树是否能与对应的子树一致，往下一个一个判断即可
-        时间O(n) 空间O(n)
         """
         self.counter += 1
         # 情况1：a和b都空
@@ -553,7 +553,8 @@ class Solution:
         """
         用一个list存每个subtree的sum，最后pop掉root的sum。
         如果list裡有root sum / 2 return True else False。
-        时间O(n)，空间call stack是O(n)
+        时间O(n)
+        空间是O(n), the size of seen = []
         """
         seen = []
 
@@ -675,22 +676,18 @@ class Solution:
 
         return self.leafSum(root.left) + self.leafSum(root.right)
 
+
+
 if __name__ == '__main__':
-    root = build_tree1()
-    res = postorder_traverse(root)
+    # root = build_tree1()
+    # res = postorder_traverse(root)
 
-    root3 = build_tree3()
-    root4 = build_tree4()
-
+    root1 = build_tree1()
 
     sol = Solution()
-    res = sol.isTweakedIdentical1(root3,root4)
+    res = sol.rightSideView(root1)
     print(res)
     print(sol.counter)
-
-
-    l3 = [1, 2, None, 4, None, None, 3, None, None]
-    l4 = [1, 2, None, 4, None, None, 3, None, None]
 
 
     pass

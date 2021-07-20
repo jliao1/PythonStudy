@@ -62,7 +62,7 @@ class ArrayListManager:
     '''
     def remove(self, list, k):
         # write tour code here
-        list.remove(k)
+        list.remove_helper(k)
 
     '''
      * @param list: The array list.
