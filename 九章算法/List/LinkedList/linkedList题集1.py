@@ -464,7 +464,7 @@ class Solution:
         return slow.next
 
     '''
-    LeetCode 82. Remove Duplicates from Sorted List II
+    九章算法 82. Remove Duplicates from Sorted List II
     自己写的答案，用了前/后指针
     '''
     def deleteDuplicates(self, head):

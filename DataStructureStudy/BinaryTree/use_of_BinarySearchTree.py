@@ -5,7 +5,7 @@
 
 
 
-from LeetCode.Tree.BinaryTree二叉树.BinarySearchTree import BST
+from 九章算法.Tree.BinaryTree二叉树.BinarySearchTree import BST
 
 
 

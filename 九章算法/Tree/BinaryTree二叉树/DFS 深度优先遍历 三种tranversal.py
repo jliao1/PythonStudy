@@ -1,4 +1,5 @@
 import copy
+import collections
 from collections import deque
 # 建立个二叉树，测试用
 def build_tree1():
@@ -8,9 +9,10 @@ def build_tree1():
           3    10
          / \     \
         1   6     14
-            /\    /
-           4  7  13
-
+        \   /\    /
+        11 4  7  13
+          \
+          12
     """
     node_1 = TreeNode(8)
     node_2 = TreeNode(3)
@@ -21,6 +23,8 @@ def build_tree1():
     node_7 = TreeNode(4)
     node_8 = TreeNode(7)
     node_9 = TreeNode(13)
+    node_10 = TreeNode(11)
+    node_11 = TreeNode(12)
 
     node_1.left = node_2
     node_1.right = node_3
@@ -34,30 +38,32 @@ def build_tree1():
     node_5.right = node_8
 
     node_6.left = node_9
+    node_4.right = node_10
+    node_10.right = node_11
 
     return node_1
 def build_tree2():
     """
-        1
+        4
        / \
-      3   2
+      2   5
      / \
-    4   5
+    1   3
     """
-    node_1 = TreeNode(1)
+    node_1 = TreeNode(4)
     node_2 = TreeNode(2)
-    node_3 = TreeNode(3)
-    node_4 = TreeNode(4)
-    node_5 = TreeNode(5)
+    node_3 = TreeNode(5)
+    node_4 = TreeNode(1)
+    node_5 = TreeNode(3)
     node_6 = TreeNode(14)
     node_7 = TreeNode(4)
     node_8 = TreeNode(7)
     node_9 = TreeNode(13)
 
-    node_1.right = node_2
-    node_1.left = node_3
-    node_3.left = node_4
-    node_3.right = node_5
+    node_1.left = node_2
+    node_1.right = node_3
+    node_2.left = node_4
+    node_2.right = node_5
 
     return node_1
 def build_tree3():
@@ -153,39 +159,50 @@ def postorder_traverse(root):
     postorder_traverse(root.right)
     print(root.val, end=' ')
 
-
 class Solution:
     def __init__(self):
         self.counter = 0
         self.string = []   # lintcode(力扣606) Easy 1137 · Construct String from Binary Tree
 
     # lintcode(力扣94) Easy 67 · Binary Tree Inorder Traversal  这道题挑战让你用iterative写法
-    def inorderTraversal_iterative(self, root):
-        if root is None:
+    def inorderTraversal_iterative1(self, root):
+        stack = []
+        res = []
+
+        while stack or root:  # 直到栈空和root是None就停止
+            # 先往左走，边走边入栈
+            while root:
+                stack.append(root)
+                root = root.left
+            # 弹栈
+            root = stack.pop()
+            # 遍历
+            res.append(root.val)
+            # 后root往右子树走一步
+            root = root.right
+
+        return res
+
+    # lintcode(力扣94) Easy 67 · Binary Tree Inorder Traversal  这道题挑战让你用iterative写法
+    def inorderTraversal_iterative2(self, root):
+        if not root:
             return []
 
-        # 创建一个 dummy node，右指针指向 root
-        # 并放到 stack 里，此时 stack 的栈顶 dummy
-        # 是 iterator 的当前位置
-        dummy = TreeNode(0)
-        dummy.right = root
-        stack = [dummy]
+        def to_leftmost_min(root):
+            while root:
+                stack.append(root)
+                root = root.left
 
-        inorder = []
-        # 每次将 iterator 挪到下一个点
-        # 也就是调整 stack 使得栈顶到下一个点
+        res = []
+        stack = []
+        to_leftmost_min(root)
+
         while stack:
             node = stack.pop()
-            if node.right:
-                node = node.right
-                # 把左孩子都压栈
-                while node:
-                    stack.append(node)
-                    node = node.left
-            if stack:
-                inorder.append(stack[-1].val)
+            res.append(node.val)
+            to_leftmost_min(node.right)
 
-        return inorder
+        return res
 
     # lintcode(力扣144) Easy 66 · Binary Tree Preorder Traversal  这道题挑战让你用iterative写法
     def preorderTraversal_iterative(self, root):
@@ -210,6 +227,233 @@ class Solution:
             if node.left:
                 stack.append(node.left)
         return preorder
+
+    # lintcode(力扣145) Easy 68 · Binary Tree Postorder Traversal
+    def postorderTraversal_iterative1(self, root):
+        """
+        后续遍历是先左子树，再右子树再到父结点，倒过来看就是先父结点，再右子树再左子树。
+        是前序遍历改变左右子树访问顺序。 再将输出的结果倒序输出一遍就是后序遍历。
+        如果不只是求后序遍历，而是要后序遍历的过程中每个点做额外的操作，那么这种办法就不好使了, 看下方法2更genral
+        """
+        if root is None:
+            return []
+        stack = [root]
+        result = []
+        while stack:
+            node = stack.pop()
+            result.append(node.val)
+            if node.left is not None:
+                stack.append(node.left)
+            if node.right is not None:
+                stack.append(node.right)
+        return result[::-1]
+
+    # lintcode(力扣145) Easy 68 · Binary Tree Postorder Traversal 这个好难…
+    def postorderTraversal_iterative2(self, root):
+        """这个相比之下更好理解吧"""
+        if not root:
+            return []
+
+        def to_left_most_and_to_right_most(curNode):
+            while curNode:
+                stack.append(curNode)
+                # 能左走就左走，走不了(None)的话就向右走，直到触底
+                curNode = curNode.left if curNode.left else curNode.right
+
+        ans, stack, cur = [], [], root
+
+        to_left_most_and_to_right_most(cur)
+
+        while stack:
+            cur = stack.pop()
+            ans.append(cur.val)
+            # 如果 cur 栈顶节点stack[-1] 的左孩子 （如果不是就继续while循环弹栈）
+            if stack and stack[-1].left == cur:
+                # 栈顶节点stack[-1]，先hold住不出栈
+                # cur往 栈顶(父)节点 的右孩子走一步
+                cur = stack[-1].right
+                to_left_most_and_to_right_most(cur)
+
+        return ans
+
+    # lintcode(力扣145) Easy 68 · Binary Tree Postorder Traversal
+    def postorderTraversal_iterative3(self, root):
+        """这思路好难懂"""
+        result = []
+        stack = []
+
+        curNode = root
+        while stack or curNode:
+            # 能左就左。继续左没有时，就向右一步
+            while curNode:
+                stack.append(curNode)
+
+                if curNode.left:
+                    curNode = curNode.left
+                else:
+                    curNode = curNode.right
+
+            # pop stack，添加到结果
+            curNode = stack.pop()
+            result.append(curNode.val)
+
+            # 栈不空, 且curNode是栈顶stack[-1]的左子节点，
+            #               转到栈顶stack[-1]的右兄弟，否则退栈
+            if stack and stack[-1].left == curNode:
+                curNode = stack[-1].right
+            else:
+                curNode = None
+
+        return result
+
+    # lintcode（力扣105）Medium 73 · Construct Binary Tree from Preorder and Inorder Traversal 这种题处理 index要疯，唉
+    def constructFromPreInorder1(self, preorder, inorder):
+        """
+        九章的答案
+        前序的第一个为根，在中序中找到根的位置。
+        中序中根的左右两边即为左右子树的中序遍历。同时可知左子树的大小size-left。
+        前序中根接下来的size-left个是左子树的前序遍历。
+        由此可以递归处理左右子树。
+        """
+        if not inorder: return None # inorder is empty
+        root = TreeNode(preorder[0])
+        root_index = inorder.index(preorder[0])
+        root.left = self.constructFromPreInorder1(preorder[1: 1 + root_index], inorder[: root_index])
+        root.right = self.constructFromPreInorder1(preorder[root_index + 1:], inorder[root_index + 1:])
+        return root
+
+    # lintcode（力扣105）Medium 73 · Construct Binary Tree from Preorder and Inorder Traversal
+    def constructFromPreInorder2(self, preorder, inorder):
+        """
+        * 我写了个in-place版本的，思路跟官方答案一样，但运行起来比官方答案快，可读性也不错。
+        * 官方答案思路清晰，但总是这样preorder[1: 1 + root_index] 还有这样inorder[: root_index]对 list 进行切片，这操作会每次copy部分原list产生一次新的list，这会很增加rum time的。
+        * 所以我写了一个in-place版本的，基于preorder 和 inorder这两个原 list 操作就行，递归函数传参时不会产生新list
+        * 由于不需要list切片，只需要visit each node once，所以时间复杂度是O(N)
+        * 空间复杂度是O(h)，h是树高度在logN～N之间，这是call stack使用的空间
+        """
+        # 如果输入为空 或 2个列表 不一样长，return None
+        if not inorder and len(inorder) != len(preorder):
+            return None
+
+        self.preorder_index_tracking = 0
+
+        # 这个分治函数参数 left_index 和 right_index 看的是 inorder list 的 index
+        def divide_conquer(left_index, right_index):
+            if left_index > right_index: return None
+
+            # build root node
+            root_value = preorder[self.preorder_index_tracking]
+            root = TreeNode(root_value)
+
+            # process index
+            root_index_in_inorder = inorder.index(preorder[self.preorder_index_tracking])
+            self.preorder_index_tracking += 1
+
+            # 分治开始啦, 这里主要是看 inorder 序列
+            root.left = divide_conquer(left_index, root_index_in_inorder - 1)
+            root.right = divide_conquer(root_index_in_inorder + 1, right_index)
+
+            return root
+
+        return divide_conquer(0, len(inorder) - 1)
+
+    # lintcode（力扣106）Medium 72 Construct Binary Tree from Inorder and Postorder Traversal
+    def constructFromPstInorder1(self, inorder, postorder):
+        if not inorder: return None # inorder is empty
+        root = TreeNode(postorder[-1])
+        rootPos = inorder.index(postorder[-1])
+        root.left = self.buildTree(inorder[ : rootPos], postorder[ : rootPos])
+        root.right = self.buildTree(inorder[rootPos + 1 : ], postorder[rootPos : -1])
+        return root
+
+    # lintcode（力扣106）Medium 72 Construct Binary Tree from Inorder and Postorder Traversal
+    def constructFromPstInorder2(self, inorder, postorder):
+        if not inorder and len(inorder) != len(postorder):
+            return None
+
+        def build(in_start, in_end, post_start, post_end):
+            if in_start > in_end or post_start > post_end:
+                return None
+
+            root_value = postorder[post_end]
+            root = TreeNode(root_value)
+
+            # 下面这句话好像不写也可以，但写上也挺有助于理解
+            if in_start == in_end or post_start == post_end:
+                return root
+
+            root_index_in_inorder = inorder.index(root_value)
+            # 左子树的长度，用来定位index范围的
+            left_len = root_index_in_inorder - in_start
+
+            #                左子树在inorder列表里的index范围          左子树在postorder列表里的index范围
+            root.left = build(in_start, root_index_in_inorder - 1, post_start, post_start + left_len - 1)
+            #                右子树在inorder列表里的index范围         右子树在postorder列表里的index范围
+            root.right = build(root_index_in_inorder + 1, in_end, post_start + left_len, post_end - 1)
+
+            return root
+
+        return build(0, len(inorder) - 1, 0, len(postorder) - 1)
+
+    # lintcode（力扣889）Medium 1593 Construct Binary Tree from Preorder and Postorder Traversal
+    def constructFromPrePost1(self, pre, post):
+        """
+        左边分支有L个节点。左边分支头节点是pre[1],但是也是左边分支后序遍历的最后一个。
+        所以pre[1] = post[L-1]。因此，L = post.indexOf(pre[1]) + 1。
+        在递归过程中，左边分支节点位于pre[1 : L + 1]和post[0 : L]中，
+        右边分支节点位于pre[L+1 : N]和post[L : N-1]中。(不包括区间右端点)
+        但这个不是in-place的，需要copy
+        """
+        if not pre: return None
+        root = TreeNode(pre[0])
+        if len(pre) == 1: return root
+
+        L = post.index(pre[1]) + 1
+        root.left = self.constructFromPrePost1(pre[1:L + 1], post[:L])
+        root.right = self.constructFromPrePost1(pre[L + 1:], post[L:-1])
+        return root
+
+    # lintcode（力扣889）Medium 1593 Construct Binary Tree from Preorder and Postorder Traversal
+    def constructFromPrePost2(self, pre, post):
+        """
+        in-place写法，时间复杂度O(n),空间复杂度O(h)
+        """
+        if not pre and len(pre) != len(post):
+            return None
+
+        def build_tree(pre_start, pre_end, post_start, post_end):
+            if pre_start > pre_end or post_start > post_end:
+                return None
+
+            # bulid root
+            root = TreeNode(pre[pre_start])
+
+            # 这步不能省略，在处理最后2个节点的时候，如果没了这不，就过头了，错乱了
+            if pre_start == pre_end or post_start == post_end:
+                return root
+
+            # process index
+            left_root_Index_In_Pre = pre_start + 1
+            left_root_value = pre[left_root_Index_In_Pre]
+            left_root_Index_In_post = post.index(left_root_value)
+            #                      left_len_in_pre = left_len_in_post = left_root_Index_In_post - post_start + 1
+            left_end_Index_In_Pre = left_root_Index_In_Pre + (left_root_Index_In_post - post_start) # 这里是算 index 比 长度少1
+
+            # 前序的分法，就是把第一个 root value 拿去建 root后剔除它，然后剩下的，左部分是 left sub tree，右是 right sub tree
+            # 后序的分法，就是把最后一位是 root value 剔除，剩下的 左部分是 left sub tree，右是 right sub tree
+
+            #                     the range of left sub tree in preorder list  为什么left_root_Index_In_Pre是pre_start+1？因为前序的分法，就是把第一个 root value 拿去建 root后剔除它
+            root.left = build_tree(left_root_Index_In_Pre,               left_end_Index_In_Pre, \
+            #                      the range of left sub tree in inorder list
+                                   post_start,                  left_root_Index_In_post )
+
+            #                      the range of right sub tree in preorder list
+            root.right = build_tree(left_end_Index_In_Pre+1,     pre_end, \
+            #                       the range of right sub tree in inorder list
+                                    left_root_Index_In_post + 1, post_end - 1)  # 为什么要 post_end-1? 因为后序的分法，就是把最后一位是 root value 剔除
+            return root
+
+        return build_tree(0, len(pre) - 1, 0, len(post) - 1)
 
     # lintcode(力扣366) Medium 650 · Find Leaves of Binary Tree 用map
     def findLeaves1(self, root):
@@ -440,23 +684,18 @@ class Solution:
         return self.path_lists
 
     # lintcode(力扣100) Easy 469 · Same Tree自己写的答案一次过
-    def isIdentical(self, a, b):
+    def isIdentical(self, T1, T2):
         """
         Time complexity : O(N), where N is a number of nodes in the tree, since one visits each node exactly once.
         Space complexity : O(log(N)) in the best case of completely balanced tree, O(N) in the worst case of completely unbalanced tree, to keep a recursion stack.
         """
-        if not a and not b:
+        if not T1 and not T2:
             return True
 
-        if a and b and self.isSameVal(a, b):
-            return self.isIdentical(a.left, b.left) and self.isIdentical(a.right, b.right)
-        else:
-            return False
-    def isSameVal(self, node1, node2):
-        if node1.val == node2.val:
-            return True
-        else:
-            return False
+        if T1 and T2 and T1.val == T2.val:
+            return self.isIdentical(T1.left, T2.left) and self.isIdentical(T1.right, T2.right)
+
+        return False
 
     # lintcode(力扣606) Easy 1137 · Construct String from Binary Tree
     def tree2str(self, t):
@@ -676,18 +915,173 @@ class Solution:
 
         return self.leafSum(root.left) + self.leafSum(root.right)
 
+    # Lintcode Medium 94 · Binary Tree Maximum Path Sum
+    def maxPathSum(self, root):
+        """
+        平时遇到树结构90%都可以用分治做出来
+        一个subtree是一个小组
+        可以想想能不能先搞定左孩子，再搞定右孩子，再搞定父节点（post DFS赶脚）
 
+        在遍历树的过程中，要看两样，
+        一是当前subtree子树的最大值，设为全局变量更好
+        一是当前subtree能对parent tree父树贡献什么，挑选左右子树谁更大，是分治法
+
+        由于是dfs所以时间复杂度是O(n)啦
+        """
+        if not root:
+            return 0
+
+        self.max_sum = -float('inf')
+
+        self.postorder_dfs(root)
+
+        return self.max_sum
+    def postorder_dfs(self, root):
+        if not root: return 0
+        left = self.postorder_dfs(root.left)
+        right = self.postorder_dfs(root.right)
+
+        # 返回上一层级的值，只能是：    自己      自己带右孩子        自己带左孩子
+        curr_max_to_parent = max(root.val, root.val + right, root.val + left)  # 由于带孩子可能使得这个小tree的值减小，所以有可能不带孩子
+
+        # 返回前 更新一下max_sum
+        self.max_sum = max(self.max_sum, root.val + left + right, curr_max_to_parent)
+
+        return curr_max_to_parent
+
+    # Lintcode Medium 1534 · Convert Binary Search Tree to Sorted Doubly Linked List
+    def treeToDoublyList(self, root):
+        """
+        Each node in a doubly linked list has a predecessor and successor
+
+        The left pointer 指向前 of the tree node should point to its predecessor,
+        and the right pointer 指向后 should point to its successor
+
+        这是我自己左的，感觉挺好
+        """
+        if not root:
+            return root
+
+        head, tail = self.dfs_treeToDoublyList(root)
+
+        # 连接首尾
+        tail.right = head
+        head.left = tail
+
+        return head
+    def dfs_treeToDoublyList(self, root):
+        """
+        是中序遍历，
+        思路：
+        由于进到右子树，需要返回右子树变成双链表的头 给上一层级用
+            进到左子树，需要返回左子树变成双链表的尾 给上一层级用
+        然后又要一直记录 双链表的最前端返回给主函数用
+        而且在主函数内也要连接整个双链表的 最头 最尾
+        所以这个函数就 返回 头 尾 一直记录着好啦
+        """
+        if not root:
+            return root, root
+
+        # 它俩要先赋值，因为如果 下面2个if语句都没进入执行，它俩得有个初始值
+        left_head, right_tail = root, root
+
+        # 如果右孩子存在
+        if root.right:
+            # dfs 返回的 后续会用到 sub_right_head 接回 root
+            right_head, right_tail = self.dfs_treeToDoublyList(root.right)
+            # 连上（处理root右边情况）
+            right_head.left = root
+            root.right = right_head   # 这句话好像多余
+
+        # 如果左孩子存在
+        if root.left:
+            # dfs 返回的 后续会用到 sub_left_tail 接回 root
+            left_head, left_tail = self.dfs_treeToDoublyList(root.left)
+            # 连上（处理root左边情况）
+            left_tail.right = root
+            root.left = left_tail
+
+        return left_head, right_tail
+
+    # Lintcode(力扣652) Medium 1108 · Find Duplicate Subtrees
+    def findDuplicateSubtrees(self, root):
+        """
+        将一棵二叉树的所有结点作为根节点进行序列化，记录该前序序列化字符串出现的次数。
+        1、如果出现的次数大于1，那么就说明该序列重复出现。
+        2、如果等于1，说明在这之前遇到过一次节点。
+        最后统计完重复的后，返回结果；如果是空结点的话，返回一个任意非空字符串。
+
+        时间空间复杂度O(n)
+        """
+        count = collections.Counter()
+        ans = []
+        def collect(node):
+            if not node: return "#"
+            serial = "{},{},{}".format(node.val, collect(node.left), collect(node.right))
+            count[serial] += 1
+            if count[serial] == 2:
+                ans.append(node)
+            return serial
+
+        collect(root)
+        return ans
+
+# lintcode Medium 86 · Binary Search Tree Iterator
+class BSTIterator:
+    def __init__(self, root):
+        self.stack = []
+        # 初始化时从root开始一路向左走到最末端的节点，即全局最小值，并将一路访问过的节点加入到stack中
+        self._to_most_left_min(root)
+
+    def hasNext(self):
+        # stack[-1] 一直存放 iterator 指向的当前节点。因此在判断有没有下一个节点时，只需要判断 stack 是否为空。
+        return len(self.stack) > 0   # 或者写: return bool(self.stack)
+
+    # worst case O(h)，均摊下来访问每个节点的时间复杂度时O(1)
+    def _next(self):
+        # 异常检测
+        if len(self.stack) == 0: return None
+
+        next_node = self.stack.pop()
+
+        if next_node.right:  # 这句话不加其实也行，因为 next_node.right 是None的话也可以处理的
+            self._to_most_left_min(next_node.right)
+        return next_node
+
+    # 找全局最小值，一路向左，并将一路访问过的节点加入到stack中
+    # 这样最后一个加进去的当然就是最小值
+    def _to_most_left_min(self, root):
+        while root:
+            self.stack.append(root)
+            root = root.left
+
+def inorderTraversal(root: TreeNode) :
+    if not root:
+        return None
+
+    def to_leftmost_min(root):
+        while root:
+            stack.append(root)
+            root = root.left
+
+    res = []
+    stack = []
+    to_leftmost_min(root)
+
+    while stack:
+        node = stack.pop()
+        res.append(node.val)
+        to_leftmost_min(node.right)
+
+    return res
 
 if __name__ == '__main__':
-    # root = build_tree1()
-    # res = postorder_traverse(root)
-
-    root1 = build_tree1()
+    root = build_tree1()
+    inorder_traverse(root)
+    l = inorderTraversal(root)
 
     sol = Solution()
-    res = sol.rightSideView(root1)
-    print(res)
-    print(sol.counter)
+    res = sol.postorderTraversal_iterative2(root)
 
 
     pass

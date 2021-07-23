@@ -1,5 +1,5 @@
 # Definition of TreeNode:
-
+import collections
 from collections import deque
 
 class TreeNode:
@@ -333,244 +333,120 @@ class Solution:
         collect(root, 0)
         return res
 
-    # Lintcode hard 87 · Remove Node in Binary Search Tree  主要是 edge case太多，太烦了
-    def removeNode1(self, root, value):
+    # Lintcode(力扣572) Medium 245 · Subtree 分治法 做法
+    def isSubtree1(self, T1, T2):
         """
-        这是sheila教的方法，
-        先找到 value 的 parent 和这个 value
-        然后看要删除的 target node 是不是 叶子节点，或之有1个孩子，或有2个孩子，分这3种情况讨论
-        写出来累死了…  我写得不太好的地方在于可能很多地方重复判断了？
-        可以看下方法2 iterative 写法要简练点，把remove都整合到一个函数里了
-        方法3 比 方法2 更简洁一些
+        有几个edge case需要根面试官确认：
+        （沟通显示思维的完整度）
+        1 两棵树相等，T2 是 T1 的子树吗
+        2 空树是非空树的子树吗
+        3 非空树是空树的子树吗
+        4 空树是空树的子树吗
+        排列组合  空  非空
+          空     是
+          非空
         """
-        dummy = TreeNode(-float('inf'))
-        dummy.right = root
-        target_node, parent = self.find_target_node_and_its_parent(dummy, value)
+        if not T2:
+            return True
+        if not T1:
+            return False
 
-        # find nothing，doing nothing
-        if not parent and not target_node:
-            return root
+        # DFS开始左右找subtree了，注意这里 先种后序遍历的时间复杂度都是一样的
+        if self.is_equal(T1, T2):
+            return True
+        return self.isSubtree1(T1.left, T2) or self.isSubtree1(T1.right, T2)
+    def is_equal(self, T1, T2):  # 其实前后中DFS都可以的
+        if not T1 and not T2:
+            return True
 
-        # target node is a leaf node
-        if not target_node.left and not target_node.right:
-            self.remove_leaf_node(parent, target_node)
-        # target node only has one child
-        elif target_node.left and not target_node.right:
-            self.remove_node_with_one_child(parent, target_node)
-        elif target_node.right and not target_node.left:
-            self.remove_node_with_one_child(parent, target_node)
-        # target node has 2 children
-        elif target_node.right and target_node.left:
-            self.remove_node_with_2_children(target_node)
+        if T1 and T2 and T1.val == T2.val:
+            return self.is_equal(T1.left, T2.left) and self.is_equal(T1.right, T2.right)
 
-        return dummy.right
-    def remove_node_with_2_children(self, target):
+        return False
+
+    # Lintcode(力扣572) Medium 245 · Subtree   iterative做法，防止stack overflow
+    def isSubtree2(self, T1, T2):
         """
-        策略是 find inorder predecessor
-        从 target node 的位置开始，先go left once，然后 go as right as possible
-        就可以找到 target 的 inorder predecessor
-        然后把 inorder predecessor 位置的 value 和 target 位置的 value swap
-        然后删掉 inorder predecessor 位置的 node
+        由于题目说了，T1 with millions of nodes, and T2 with hundreds of nodes.
+        所以如果在 找subtree的部分如果用递归，估计会 stack overflow
+        所以这部分写成 preorder DFS 的 iterative 形式 来防止栈溢出
+
+        要考虑到
+        非常非常非常大的一个Tree到底是啥意思。
+        不要递归
+        不要遍历
+        有比较操作的话用小的去比大的（和sql里小表join大表一样）
+        找其他能用到的条件（但是这个题反复看也就是二叉树，找不到优化的方案）
+
+        所以：
+        不管怎么优化时间最差都是 O(m*n) 分别是两个树的node数。
         """
-        # go left once
-        curr = target.left
-        # go as right as possible
-        curr_prev = target
-        while curr.right:
-            curr_prev = curr
-            curr = curr.right
-        # find target's inorder_predecessor
-        inorder_predecessor = curr
-        inorder_predecessor_parent = curr_prev
-        # swap
-        inorder_predecessor.val, target.val = target.val, inorder_predecessor.val
-        # delete inorder_predecessor
-        if inorder_predecessor.left:
-            # inorder_predecessor has one child
-            self.remove_node_with_one_child(inorder_predecessor_parent, inorder_predecessor)
-        else:
-            # inorder_predecessor has no child
-            self.remove_leaf_node(inorder_predecessor_parent, inorder_predecessor)
-    def remove_node_with_one_child(self, parent,  target):
-        # 要删除的 target node 如果只有一个孩子，那么直接让 target 的 parent 指向 target 的唯一孩子
-        if target.left:
-            # 如果 target 唯一的孩子是左孩子
-            target_child = target.left
-        else:
-            # 如果 target 唯一的孩子是右孩子
-            target_child = target.right
-        if parent.left and parent.left == target:
-            # 如果 parent 的左孩子 是 target node
-            parent.left = target_child
-        else:
-            # 如果 parent 的右孩子 是 target node
-            parent.right = target_child
-    def remove_leaf_node(self, parent, target):
-        # 要删除的 target node 如果是 叶子节点，那么直接让 target 的 parent 指向 None
-        if parent.left and parent.left == target:
-            # 如果 target node 是 parent 的左孩子
-            parent.left = None
-        else:
-            # 那么 target node 是 parent 的左孩子
-            parent.right = None
-    def find_target_node_and_its_parent(self, root, value):
+        if not T2: return True
+        if not T1: return False
+
+        # preorder DFS 的 iterative 形式
+        stack = [T1]
+        while stack:
+            root = stack.pop()
+            if self.is_equal(root, T2):
+                return True
+            if root.right:
+                stack.append(root.right)
+            if root.left:
+                stack.append(root.left)
+
+        return False
+
+    # Lintcode(力扣652) Medium 1108 · Find Duplicate Subtrees
+    def findDuplicateSubtrees1(self, root):
+        """我自己写的"""
         if not root:
-            return None
+            return False
+        self.res = []
+        self.dic = collections.Counter()
+        self.dfs(root)
+        return self.res
+    def dfs(self, root):
+        if not root:
+            return '#'
 
-        if root.left:
-            if root.left.val == value:
-                return root.left, root
-            elif value < root.val:
-                return self.find_target_node_and_its_parent(root.left, value)
+        left_string = self.dfs(root.left)
+        right_string = self.dfs(root.right)
 
-        if root.right:
-            if root.right.val == value:
-                return root.right, root
-            elif value >= root.val:
-                return self.find_target_node_and_its_parent(root.right, value)
+        this_string = ''.join([str(root.val), left_string, right_string])
+        self.dic[this_string] += 1
 
-        return None, None
+        if self.dic[this_string] == 2:
+            self.res.append(root)
+        return this_string
 
-    # Lintcode hard 87 · Remove Node in Binary Search Tree 这个思路和方法1一样，但是iterative写法，写得比方法1简练点
-    def removeNode2(self, root, value):
-        # # 这个部分是处理null case 不过其实以下这2句不写也是可以的，因为 check parent of the node to delete
-        # #            时已经处理当parent是None的情况了（也就是cur指向root，但由于root是None导致parent也是None根本没移动）
-        # if root is None:
-        #     return root
-
-        # 这个部分是find the node to delete and its parent
-        parent, target = None, root
-        # 找cur把它指向我们想要的value node
-        # 循环停止条件是：找到 target.val 就是 value 停止
-        #              或者 target 是 None 为止 (cur如果是None了说明tree里根本不存在value)
-        # 但有2种情况根本就不会进入while循环：
-        #         (1) 但如果 root是None ，那么target一开始也就是None
-        #         (2) value 就在 root
-        #         这两种情况，由于根本不进入while循环，那么parent = None
-        while target and target.val != value:
-            parent = target
-            if target.val > value:
-                target = target.left
-            else:
-                target = target.right
-
-        # 这部分开始 remove 了，remove()返回的其实都是删除了target后上位的节点，正好可以连到 parent 下，
-        # 其实 check parent是不是None, 就是在处理 root 是 null case 的情况（就是最开始2行代码）
-        #                            或者 value 就在 root 为止找到的情况，删除 target = root 根节点
-        if parent is None:
-            return self.remove_helper(target)
-        # 上面说了，如果tree里没找到value，cur会是None，parent.left就是None，就相当于调用self.remove(None)，remove函数也只会返回个None，不会对结果有啥影响
-        # 如果找到value了，要么 parent左孩子是 target value node，要么右孩子是，就删除它
-        elif parent.left is target:
-            parent.left = self.remove_helper(target)
-        else:
-            parent.right = self.remove_helper(target)
-
-        return root
-    def remove_helper(self, target):
-        # case1：target is null: 就是上面说的 根本没找到value的情况，target就会是None，再返回target相当于啥也没干
-        if target is None:
-            return target
-
-        # case2: if target is leaf
-        if target.left is None and target.right is None:
-            return None   # 返回 None 因为是让 parent 的左孩子/右孩子 连上 None
-
-        # case3: if target has only one child
-        if target.left is None:  # 如果左孩子不存在，那就返回右孩子，好让parent上target的右孩子
-            return target.right
-        if target.right is None:  # 如果右孩子不存在，那就返回左孩子，好让parent上target的左孩子
-            return target.left
-
-        # case4：if target has 2 children, find max node in left subtree（target 的 inorder predecessor）
-        prev, cur = None, target.left  # 因为反正target也是有2孩子的，cur先向target的左走1次
-        while cur.right:               # 然后 cur go as right as possible
-            prev = cur
-            cur = cur.right
-        # 走到这里说明 cur 已指向了 inorder predecessor
-
-        # make inorder predecessor as new root (move the pointer not copy value)
-        # 这步好难想……
-        cur.right = target.right
-        if target.left is not cur:  # 如果这条语句是True，说明cur除了往左target左走了一步后还向右下继续走了几步
-            prev.right = cur.left
-            cur.left = target.left
-        return cur
-
-    # Lintcode hard 87 · Remove Node in Binary Search Tree 这个思路是很棒的分治法体现！！也是解这题最简单的方法
-    def removeNode3(self, root, value):
+    # Lintcode(力扣652) Medium 1108 · Find Duplicate Subtrees 九章答案
+    def findDuplicateSubtrees2(self, root):
         """
-        这个方法3其实比方法1和2更简练些
-        recursion去找要删除的node，找到后直接进行删除操作，再返回连接上原parent
-        O(h) time, O(h) space, h: height of tree
+        将一棵二叉树的所有结点作为根节点进行序列化，记录该前序序列化字符串出现的次数。
+        1、如果出现的次数大于1，那么就说明该序列重复出现。
+        2、如果等于1，说明在这之前遇到过一次节点。
+        最后统计完重复的后，返回结果；如果是空结点的话，返回一个任意非空字符串。
+        时间空间复杂度O(n)
+
+        序列化和遍历是不一样的，序列化保存了子树未空的情况，遍历的话不保存所以无法确定。
+        但 前中后序的序列化，任意一个就可以确定树结构的
         """
-        # null case
-        if root is None:
-            return root
+        count = collections.Counter()
+        ans = []
+        def collect(node):
+            if not node: return "#"
+            left_sub = collect(node.left)
+            right_sub = collect(node.right)
+            serial = "{},{},{}".format(node.val, left_sub, right_sub)
+            count[serial] += 1   # 好像直接把count设置成Counter()对象就可以直接这样写了, 如果只是写成普通字典，要先检查一下字典里是否包含这个key
+            if count[serial] == 2:
+                ans.append(node)
+            return serial
 
-        # check if node to delete is in left/right subtree
-        if value < root.val:
-            root.left = self.removeNode3(root.left, value)
-        elif value > root.val:
-            root.right = self.removeNode3(root.right, value)
-        else:  # 说明 root.val == value 找到了！就开始做删除root的操作了！
-            # if root is has 2 children
-            if root.left and root.right:
-                left_max = self.find_Max_of_left_tree(root)
-                # 把 left_max.val 的值 给 root.val 的位置
-                root.val = left_max.val
-                # 然后从 root 的 left tree 进入去删掉 这个 left_max
-                root.left = self.removeNode3(root.left, left_max.val)
-            # if root has only one child
-            elif root.left:
-                root = root.left
-            elif root.right:
-                root = root.right
-            # if root has no child, it's leaf node
-            else:
-                root = None
+        collect(root)
+        return ans
 
-        return root
-    # find max node in left subtree of root，就是找删除target的 inorder_predecessor
-    def find_Max_of_left_tree(self, target):
-        # 反正target也有2个孩子，向左移动1次
-        node = target.left
-        # 然后go right as possible
-        while node.right:
-            node = node.right
-        return node
-
-    # Lintcode hard 87 · Remove Node in Binary Search Tree
-    def removeNode4(self, root, value):
-        """
-        这个思路是对原列表左一次inorder traversal 但是要删除 value 后生成一个 list
-        然后依据这个list 重建一个(高度尽量小的) 二叉树
-        但这种可能不太符合题目说的，因为题目要求是，没找到value的话就doing nothing
-        """
-        self.ans = []
-        self.inorder_traversal_list(root, value)
-        return self.build_tree_from_inorder_traversal(0, len(self.ans) - 1)
-    def inorder_traversal_list(self, root, value):
-        if root is None:
-            return
-
-        self.inorder_traversal_list(root.left, value)
-        if root.val != value:
-            self.ans.append(root.val)
-        self.inorder_traversal_list(root.right, value)
-    def build_tree_from_inorder_traversal(self, l, r):
-        if l == r:
-            node = TreeNode(self.ans[l])
-            return node
-
-        if l > r:
-            return None
-
-        mid = (l + r) // 2
-        node = TreeNode(self.ans[mid])
-        node.left = self.build_tree_from_inorder_traversal(l, mid - 1)
-        node.right = self.build_tree_from_inorder_traversal(mid + 1, r)
-        return node
 
 # 建立个二叉树，测试用
 def build_tree1():
@@ -620,24 +496,22 @@ def build_tree2():
     """
         1
        / \
-      2   3
-         / \
-        4   5
+      1   1
+    /   /
+   2   2
     """
     node_1 = TreeNode(1)
-    node_2 = TreeNode(2)
-    node_3 = TreeNode(3)
-    node_4 = TreeNode(4)
-    node_5 = TreeNode(5)
-    node_6 = TreeNode(14)
-    node_7 = TreeNode(4)
-    node_8 = TreeNode(7)
-    node_9 = TreeNode(13)
+    node_2 = TreeNode(1)
+    node_3 = TreeNode(1)
+    node_4 = TreeNode(2)
+    node_5 = TreeNode(2)
 
     node_1.left = node_2
     node_1.right = node_3
+
+    node_2.left = node_5
     node_3.left = node_4
-    node_3.right = node_5
+
 
     return node_1
 def build_tree3():
@@ -662,9 +536,12 @@ def build_tree3():
     return node_1
 
 if __name__ == '__main__':
-    root = build_tree1()
+
+
+    root = build_tree2()
+
     sol = Solution()
-    l = sol.removeNode3(root, 4)
+    l = sol.findDuplicateSubtrees1(root)
     print(l)
 
     n1 = TreeNode(1)

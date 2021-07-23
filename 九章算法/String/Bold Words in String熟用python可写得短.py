@@ -61,7 +61,7 @@ class Solution:
             # i >= 0 说明在S里找到w了，否则 没找到
             while i >= 0:
                 # 这句是 把 range 里的 数字 都加到 bold 里
-                bold.update(range(max(i, end + 1), i + len(w)))
+                bold.update(range(max(i, end + 1), i + len(w)))    # 助教说： set 用 add，别用 update，update 一般是用来更新合并 set 的
                 end = i + len(w) - 1
                 # 从 i+1 位开始，接着 继续找 w
                 i = S.find_target_node_and_its_parent(w, i + 1)   # find里，第一个参数是要寻找的sub，第二个是从哪里开始找，第三个参数是找到哪位之前
