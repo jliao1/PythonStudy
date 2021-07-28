@@ -205,6 +205,17 @@ class Solution:
         self.prev = -float('inf')
         return inorder(root)
 
+    def isValidBST4(self, root):
+        return self.helper(root, float('-inf'), float('inf'))
+    def dfs_for_isValidBST4(self, min_value, max_value):
+        if not root:
+            return True
+        if root.val <= min_value:
+            return False
+        if root.val >= max_value:
+            return False
+        return self.dfs_for_isValidBST4(root.left, min_value, root.val) and self.helper(root.right, root.val, max_value)
+
     # leetcode Medium 98. Validate Binary Search Tree
     def isValidBSTWrongAnswer(self, root):
         """

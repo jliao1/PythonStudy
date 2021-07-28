@@ -1026,7 +1026,7 @@ class Solution:
         collect(root)
         return ans
 
-# lintcode Medium 86 · Binary Search Tree Iterator
+# lintcode(力扣173) Medium 86 · Binary Search Tree Iterator
 class BSTIterator:
     def __init__(self, root):
         self.stack = []
@@ -1055,25 +1055,7 @@ class BSTIterator:
             self.stack.append(root)
             root = root.left
 
-def inorderTraversal(root: TreeNode) :
-    if not root:
-        return None
 
-    def to_leftmost_min(root):
-        while root:
-            stack.append(root)
-            root = root.left
-
-    res = []
-    stack = []
-    to_leftmost_min(root)
-
-    while stack:
-        node = stack.pop()
-        res.append(node.val)
-        to_leftmost_min(node.right)
-
-    return res
 
 if __name__ == '__main__':
     root = build_tree1()
