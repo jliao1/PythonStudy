@@ -189,6 +189,12 @@ class Solution:
         return True
 
 if __name__ == '__main__':
+    d = {1:11, 2:22, 3:33}
+    print(d)
+    a = d.pop(1)
+    print(a)
+    print(d)
+
     sol = Solution()
     l = sol.areSentencesSimilarTwo2(["great","acting","skills"],["fine","talent","talentdrama"],[["great","good"],["fine","good"],["drama","acting"],["skills","talent"]])
     print(l)

@@ -2,7 +2,7 @@
 '''
 字典：
 应用：插入和查找，平均操作效率很高O(1)
-     分类记数
+     分类记数 （其实一般可以用 collections.Counter(iterable)）
      存储且快速找到key所对应的value
      前缀之和
      双向记录构建map，单向查找set；单向记录，双向查找
@@ -30,6 +30,8 @@ dict不可以hash
 
 但负载因子大于0.5时候，哈嘻表查找性能急剧下降。为了保证空间很大，就可以rehash，哈嘻表扩展1倍。当装的元素很少的时候，也可以rehash把空间减小
 '''
+import collections
+
 
 class Solution:
 
@@ -233,10 +235,92 @@ class Solution:
 
         return ''.join(res)
 
+    # lintcode(力扣299) Medium 1299 · Bulls and Cows
+    def getHint(self, secret, guess):
+        """时间O(n) 空间O(1)"""
+        if not secret or not guess:
+            return '0A0B'
+
+        dic = collections.Counter(secret)
+
+        bulls = 0  # 位置对，值对
+        cows = 0  # 值对，位置不对
+
+        for i, c in enumerate(guess):
+            if c in dic:
+                dic[c] -= 1
+
+                if dic[c] <= 0:
+                    dic.pop(c)
+
+                if i < len(secret) and guess[i] == secret[i]:
+                    bulls += 1
+                else:
+                    cows += 1
+
+        return "{}A{}B".format(bulls, cows)
+
+    # lintcode(力扣128) Medium 124 · Longest Consecutive Sequence
+    def longestConsecutive_Time_Limit_Exceeded(self, num):
+        """我自己的答案，超时了"""
+        dic = {}
+
+        for n in num:
+            dic[n] = n + 1
+
+        max_len = -float('inf')
+
+        for n in num:
+            count = 1
+            val = dic.get(n, None)
+
+            while val is not None and val in dic:
+                count += 1
+                val = dic.get(val, None)
+
+            max_len = max(count, max_len)
+
+        return max_len
+
+    # lintcode(力扣128) Medium 124 · Longest Consecutive Sequence
+    def longestConsecutive(self, nums) -> int:
+        """
+        真正的O(N)O(N)解
+
+        而且不需要动态的从哈希或set里删除元素。
+
+        这是一个计数题，别的解法都把它弄复杂了。假设你已经掌握了dict和set，往下看：
+
+        拿那个[100, 4, 200, 1, 3, 2]样例，你该怎么数数呢？你先从100数，然后呢，就没有了。再从4开始数，唉，不对，不应该，因为后面还有3，2，1
+        所以应该把4跳过去，待会从小的数开始数。再后面是200，因为没有199，所以应该从200开始。
+
+        或者这样看，每一个连续序列都可以被这个序列的最小值代表，要找到最小值才开始数，这样无重复，才能做到O(N)O(N)。
+
+        具体来看，这个代码做了三个NN的操作：
+
+        建dict
+        for循环里，看每一个数字n是否有n-1存在
+        while循环，从小到大的数连续序列
+
+        如果用先排序一下的话就始终 nlogn了
+        """
+        max_len, table = 0, {num: True for num in nums}
+
+        for lo in nums:
+            if lo - 1 not in table:
+                # 能走到这里说明 lo-1 已经是比最小的还小1
+                curr = lo + 1
+                while curr in table:
+                    curr += 1
+                                        # 长度
+                max_len = max(max_len, curr - lo)
+
+        return max_len
+
 
 if __name__ == '__main__':
 
     sol = Solution()
-    l = sol.countGroups(["ab.cd+cd@jiu.zhang.com", "ab.cd+cd@jiuzhang.com", "ab+cd.cd@jiuzhang.com"])
+    l = sol.longestConsecutive2([1,2,0,1])
     print(l)
     pass

@@ -1,4 +1,6 @@
 """
+【常见排序都要背！】
+
 【if 分情况讨论】
 在一个helper function里如果有多种case需要讨论
 - 一般 if 先讨论简单 case，再依次讨论 复杂der 的case

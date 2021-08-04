@@ -10,8 +10,8 @@ p后面再接，接不上
 
 【链表】
 覆盖所有的case有点难
-九章算法 82. Remove Duplicates from Sorted List II
-九章算法 708. Insert into a Sorted Circular Linked List
+九章算法基础班 82. Remove Duplicates from Sorted List II
+九章算法基础班 708. Insert into a Sorted Circular Linked List
 
 
 

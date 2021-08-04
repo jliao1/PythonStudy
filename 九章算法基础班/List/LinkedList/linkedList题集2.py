@@ -43,7 +43,7 @@ class Solution:
 
         return dummy.next
 
-    # 九章算法 1721. Swapping Nodes in a Linked List
+    # 九章算法基础班 1721. Swapping Nodes in a Linked List
     def swapNodes1(self, head: ListNode, k: int) -> ListNode:
         """
         :param k: 正数第K个和倒数第K个交换
@@ -95,7 +95,7 @@ class Solution:
 
         return dummy.next
 
-    # 九章算法 1721. Swapping Nodes in a Linked List
+    # 九章算法基础班 1721. Swapping Nodes in a Linked List
     def swapNodes2(self, head: ListNode, k: int) -> ListNode:
         """
         空间复杂度依旧是O(1)
@@ -324,6 +324,23 @@ class Solution:
 
         return slow
 
+    def find_Middle_and_break(self, head):
+        if not head or not head.next:
+            return head
+
+        # 下面这句就不能写成 fast, slow = head, head
+        # 因为如果这样写，当还剩俩元素时，mid 就是 None，就无法继续处理了
+        # 而且也无法作断开处理了
+        fast, slow = head.next, head
+        while fast and fast.next:
+            fast = fast.next.next
+            slow = slow.next
+        mid = slow.next
+        # 断开
+        slow.next = None
+
+        return head, mid
+
     # 交换LinkedList里的2个nodes, 不管相邻不相邻，相不相同。代码来自 lint code 的511题的solution中，名叫 RickSJCA 用户提供的答案
     def __swap(self, pre1st, pre2nd):
         """
@@ -380,6 +397,9 @@ def printList(head):
 
 
 if __name__ == '__main__':
+
+    for size in range(1, 20, size*2):
+        pass
 
     node1 = ListNode(1)
     node2 = ListNode(1)
