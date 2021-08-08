@@ -296,7 +296,6 @@ class Solution:
 
         return helper(0, len(A) - 1)
 
-
     # lintcode(力扣108) Easy 177 · Convert Sorted Array to Binary Search Tree With Minimal Height
     def sortedArrayToBST3(self, A):
         """

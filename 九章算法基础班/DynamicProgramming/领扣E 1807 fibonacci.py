@@ -50,7 +50,7 @@ class Solution:
         return arr[n]
 
 
-    #这个写法空间复杂度较高
+    #这个写法空间复杂度较高，达到 2^n 量级，会stack overflow
     def fibonacci3(self, n):
         res =[]
         res.append(0);

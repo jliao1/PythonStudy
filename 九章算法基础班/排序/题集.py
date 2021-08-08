@@ -190,7 +190,10 @@ class Solution:
 
     # lintcode Medium 31 · Partition Array
     def partitionArray(self, nums, k):
-        """最多扫描一遍数组，时间复杂度为O(n), 空间是O(1)"""
+        """
+        最多扫描一遍数组，时间复杂度为O(n), 空间是O(1)
+        和quicksort里的partition过程性质相似，都是不stable的
+        """
         left, right = 0, len(nums) - 1
         while left <= right:
             while left <= right and nums[left] < k:
@@ -808,18 +811,19 @@ class Solution:
 
         return count
 
-    # lintcode Medium 5 · Kth Largest Element
-    def kthLargestElement(self, A, k):
+    # lintcode Medium 5 · Kth Largest Element  可以写个例子跟着走一遍
+    def kthLargestElement(self, k, A):
         """
         最容易想到的是直接排序，返回第k大的值。时间复杂度是O(nlogn)
-        这里是 O(n) 的做法
+
+        而这是 O(n) 的做法
         这题其实是快速排序算法的变体，
         通过快速排序算法的partition步骤，
         可以将小于等于pivot的值划分到pivot左边，
         大于等于pivot的值划分到pivot右边
-        从而缩小范围继续找第k大的值(k要么在pivot左边或右边)
+        从而缩小范围继续找第k大的值(k要么在pivot左边或右边), 每次只在一半范围内查找，另一半不用查找
 
-        时间复杂度O(n) 因为 最多 partition n次啦
+        平均 时间复杂度O(n) 因为 T(n) = T(n / 2) + O(n) 算出来是O(n)
         空间复杂度 O(1)
         """
         if not A or k < 1 or k > len(A):
@@ -827,11 +831,9 @@ class Solution:
         # 为了方便编写代码，这里将第 k 大转换成第 [len(A) - k] 小问题。
         return self.partition(A, 0, len(A) - 1, len(A) - k)
     def partition(self, nums, start, end, k):
-        """
-        During the process, it's guaranteed start <= k <= end
-        """
         if start == end:
-            return nums[k]
+            # 说明找到了
+            return nums[k]   # 也可以 return nums[start]
 
         left, right = start, end
         pivot = nums[(start + end) // 2]
@@ -844,15 +846,45 @@ class Solution:
                 nums[left], nums[right] = nums[right], nums[left]
                 left, right = left + 1, right - 1
 
-
+        # 情况1
         if k <= right:
             # pivot 左区间都小于等于 pivot
             return self.partition(nums, start, right, k)
+        # 情况2
         if k >= left:
             # pivot 右区间都大于等于 pivot
             return self.partition(nums, left, end, k)
 
-        return nums[k]
+        # 情况3: right 和 left 中间隔了一个数，这个数就刚好是我们要找的数
+        return nums[k]  # 也可以 return nums[right+1] 或 nums[left-1]
+
+    # lintcode easy 80 · Median 领扣第5题的变形
+    def median(self, nums):
+        if not nums:
+            return None
+        return self.quick_select(0, len(nums) - 1, nums, (len(nums) - 1) // 2)
+    def quick_select(self, start, end, nums, k):
+        if start == end:
+            return nums[start]
+
+        left, right = start, end
+        pivot = nums[(start + end) // 2]
+
+        while left <= right:
+            while left <= right and nums[left] < pivot:
+                left += 1
+            while left <= right and nums[right] > pivot:
+                right -= 1
+            if left <= right:
+                nums[left], nums[right] = nums[right], nums[left]
+                left, right = left + 1, right - 1
+
+        if k <= right:  # k和right和left都是index，小于等于right都是小于等于pivot的值
+            return self.quick_select(start, right, nums, k)
+        if k >= left:
+            return self.quick_select(left, end, nums, k)
+
+        return nums[right + 1]
 
     # lintcode Medium 606 · Kth Largest Element II
     def kthLargestElementTwo1(self, nums, k):
@@ -951,5 +983,6 @@ if __name__ == '__main__':
     position = [10, 8, 0, 5, 3]
     speed = [2, 4, 1, 1, 3]
     sol = Solution()
-    l = sol.carFleet(12, position, speed)
+    l = sol.median([4,5,1,2,3])
+    print(l)
     pass
