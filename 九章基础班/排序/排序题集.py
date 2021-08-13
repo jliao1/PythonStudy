@@ -146,7 +146,9 @@ class Solution:
 
     # lintcode Medium 49 · Sort Letters by Case 一句话的解法
     def sortLetters2(self, chars):
+        # 出来的结果是小写在前，大写在后
         chars.sort(key=lambda c: c.isupper())
+        pass
 
     # lintcode Medium 532 · Reverse Pairs
     def reversePairs(self, A):
@@ -206,11 +208,11 @@ class Solution:
                 right -= 1
         return left
 
-    # lintcode(力扣75) Medium 148 · Sort Colors
+    # lintcode(力扣75) Medium 148 · Sort Colors 方法是 counting sort
     def sortColors1(self, nums):
         """
         这种是 counting sort
-        这种时间复杂度是O(n)
+        这种时间复杂度是O(range), range最大是O(n)
 
         空间复杂度O(k), k = 2
         worst case情况下用来存颜色的 count_color 是O(n)，因为有可能一个颜色只出现1次
@@ -241,7 +243,7 @@ class Solution:
         如果面试官还要难为你说只允许遍历1次呢… 那请看方法3
         """
         self.partition_array(nums, 1)  # 出来的结果是，左半边部分 < 1，右半边部分 ≥ 1
-        self.partition_array(nums, 2)  # 其实这次partition可以不管前面的几个0了，不过不管也ok，反正是O(n)
+        self.partition_array(nums, 2)  # 这次 partiton 把右半边1和2分开。其实这次partition可以不管前面的几个0了，不过不管也ok，反正是O(n)
     def partition_array(self, A, key):
         """出来的结果是，左部分 <k, 右部分 ≥ k """
         smaller_than_k = -1
@@ -260,15 +262,15 @@ class Solution:
 
         但这个方法虽然只遍历了1次数组，但每步里的操作次数变多了，总的来讲操作次数跟方法2是一样的
         """
-        p0 = -1        # zero pointer
-        p2 = len(nums) # two pointer
-        index = 0      # scan index
+        left = -1
+        right = len(nums)
+        index = 0
 
         # i < p2 是个很重要的条件
-        while index < len(nums) and index < p2:
+        while index < len(nums) and index < right:
             if nums[index] == 0:
-                p0 += 1
-                nums[p0], nums[index] = nums[index], nums[p0]
+                left += 1
+                nums[left], nums[index] = nums[index], nums[left]
                 '''
                 为啥这里没有 index -= 1
                 因为交换后的 nums[index] 只可能是 1
@@ -276,11 +278,31 @@ class Solution:
                 所有的0也都小于p0增1前的位置
                 '''
             elif nums[index] == 2:
-                p2 -= 1
-                nums[p2], nums[index] = nums[index], nums[p2]
+                right -= 1
+                nums[right], nums[index] = nums[index], nums[right]
                 index -= 1
 
             index += 1
+
+    # lintcode(力扣75) Medium 148 · Sort Colors
+    def sortColors4(self, nums):
+        """
+        思路
+        如果面试官让你值partition一次，思路是，可以看方法4，也类似于方法3的三指针
+           _ _ _ _ _ _ _ _
+          L               R
+        L左侧不包括left都是0
+        R右不包括right都是2
+        for循环i去扫每一个数
+            如果看到0，就交换扔给左边L，去扩大L的范围(L++)
+            如果看到2，就交换扔给右边R，然后扩大R的范围(R--)
+                     但换回来的数字有可能是0，1，2，如果还要继续去处理如果0扔到左边，2扔到右边，1就不管
+            如果看到1就不管
+        最后 L～R的一定是1
+        """
+        pass
+
+    # lintcode Easy 464 · Sort Integers II
     def sortIntegers2(self, A):
         def quick_sort(A, start, end):
             if start >= end:
@@ -356,9 +378,23 @@ class Solution:
                 index += 1 
         '''
 
-    # lintcode Medium 143 · Sort Colors II 彩虹排序
+    # lintcode Medium 143 · Sort Colors II 彩虹排序 经典
     def sortColorsTwo3(self, colors, k):
         """
+        瞎猜的话这题肯定不是O(n*k)和O(n^k)，因为这两个时间复杂度都比快排NlogN大
+        一般肯定要比NlogN快，不然做题就没啥意义啦
+        那么是NlogK还是KlogN呢？可以举特殊例子，
+        如果k=1就不需要排序，就是O(1)
+        如果k=2时就两种颜色分开，就partition一次就好是O(n)
+        所以乍一猜，是O(NlogK)，然后推它算法，一般有两种说法
+        （1）n * logK
+            降纬 n 次 logK的操作，涉及到log级的是 heap，红黑树，二分法…… 好像不太像
+        （2）logK次 的 n 次操作
+             归并排序：按树的结构拆解，计算每一层的时间复杂度是O(N)，一共O(logN)层
+             由此知道我们希望这题有logK层，希望 K/2  K/4 …… 1 ，每层是O(N)
+                                     那怎么去把K一分为二，直到分到1呢
+                                     把颜色范围一分为二（顺带把数组一分为二 ）
+
         【彩虹排序】解决sort颜色的问题
         这个就是所谓的彩虹排序rainbow Sort 。
         Rainbow Sort其实更像是quicksort的变种，
@@ -376,6 +412,7 @@ class Solution:
          # rainbow sort, k 取中间颜色
         self.raibow_sort(colors, 0, len(colors) - 1, 1, k)
     def raibow_sort(self, colors, start, end, color_from, color_to):
+        #  只有一个数，或颜色只有一种
         if start >= end or color_from == color_to:
             return
 
@@ -390,8 +427,8 @@ class Solution:
         while left <= right:
             # 移动left指针
             while left <= right and colors[left] <= color_mid:
-                left += 1
-
+                left += 1                   # 注意这个等号不能写在下面那个条件，因为求color_mid的整除操作是偏小的
+                                            # 若等号写在下面这行，会使得partition不均匀
             while left <= right and colors[right] > color_mid:
                 right -= 1
 
@@ -942,6 +979,7 @@ class Solution:
                 former_time = cur_time
         return count
 
+
 class LargerNumKey(str):
     """
     custom comparator preserves transitivit
@@ -980,9 +1018,7 @@ def largestNumber_wrong(nums):
     return ''.join(nums)
 
 if __name__ == '__main__':
-    position = [10, 8, 0, 5, 3]
-    speed = [2, 4, 1, 1, 3]
     sol = Solution()
-    l = sol.median([4,5,1,2,3])
+    l = sol.moveZeroes([1, 0, 1, 2, 0,2])
     print(l)
     pass

@@ -43,7 +43,7 @@ class Solution:
 
         return dummy.next
 
-    # 九章算法基础班 1721. Swapping Nodes in a Linked List
+    # 九章基础班 1721. Swapping Nodes in a Linked List
     def swapNodes1(self, head: ListNode, k: int) -> ListNode:
         """
         :param k: 正数第K个和倒数第K个交换
@@ -95,7 +95,7 @@ class Solution:
 
         return dummy.next
 
-    # 九章算法基础班 1721. Swapping Nodes in a Linked List
+    # 九章基础班 1721. Swapping Nodes in a Linked List
     def swapNodes2(self, head: ListNode, k: int) -> ListNode:
         """
         空间复杂度依旧是O(1)

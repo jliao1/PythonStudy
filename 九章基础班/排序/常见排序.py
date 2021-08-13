@@ -122,7 +122,6 @@ def merge1(array, left, right):
     for k in range(size):
         array[left + k] = temp[k]
 
-
 # merge sort 终极版 写法
 def merge_sort2(array):
     """
@@ -170,7 +169,6 @@ def merge2(array, left, right, temp):
     for k in range(size):
         array[left + k] = temp[k]
 
-
 '''
 基于比较的排序最快不会超过 NlogN 了，mergesort已经满足了
 但 merge sort再怎么样空间复杂度也较高是O(n)
@@ -200,6 +198,14 @@ def quick_sort(array): # 这个代码要背. 思路是先整体有序，再局�
         return
     quick_sort_helper(array, 0, len(array)-1)
 def quick_sort_helper(A, start, end):
+    '''
+    注意点5：
+    双重循环的时候，算时间复杂度，是要考虑的是最内层的循环主题执行的次数
+    比如这题主要是考虑
+    while left <= right:
+        while left <= right and A[left] < pivot:
+            left += 1   # 考虑这条语句执行多少次就可以了， left最多+n次
+    '''
     # 递归出口
     if start >= end:
         # 越界了，或只剩1个数了，就不用排了
@@ -212,12 +218,15 @@ def quick_sort_helper(A, start, end):
 
     left, right = start, end
 
-    # 接下来开始 partition 过程(是不stable的)，总要做 left <= right 的检查防止越界
+    # 接下来开始 模版partition 过程(是不stable的)
     '''
     注意点2：为什么接下来4个while里为什么是left <= right 而不是 left < right？
-            比如 [3,2,1,4,5] z  最后剩下[1,2]再怎么递归也还是排[1,2]，就无限循环了，就stack overflow了
+            因为如果这样的话，比如 [3,2,1,4,5]  最后剩下[1,2]再怎么做也还是会被分成[]和[1,2]，就无限循环了，就stack overflow了
+            因此如果要写 left < right，那么while循环结束时在 left = right，
+                                     此时需要多一个 if 判断 nums[left] 是<pivot在左侧怎么样，还是≥pivot在右侧怎么样
+                                     如果是 left <= right 那在退出这个 while 循环的时候，left一定指向右半边的第一个位置
     '''
-    while left <= right:
+    while left <= right: # 总要做 left <= right 的检查防止越界
         # i 指向的值 < pivot 那就i右移
         while left <= right and A[left] < pivot:
             left += 1
@@ -311,9 +320,55 @@ def partition(self, nums, start, end, k):
     # 情况3: right 和 left 中间隔了一个数，这个数就刚好是我们要找的数
     return nums[k]
 
-# lintcode Medium 143 · Sort Colors II 彩虹排序
-def sortColorsTwo3(self, colors, k):
+# lintcode(力扣75) Medium 148 · Sort Colors 方法是 counting sort
+def sortColors1(self, nums):
     """
+    这种是 counting sort
+    这种空间复杂度是O(range), range最大是O(n) 比如万一遇到每个元素都不一样
+    时间复杂度O(n)
+
+    空间复杂度O(k), k = 2
+    worst case情况下用来存颜色的 count_color 是O(n)，因为有可能一个颜色只出现1次
+    如果想降低空间复杂度：
+    array + 固定两三种元素 + O(N)时间 + O(1) 的空间 =》其实做两三次quick sort就好，看方法2
+
+    counting sort是基于值的排序，时间复杂度可以做到O(n)，但为什么系统内的sort不用这个，因为range有可能会很大
+                              然后不可数，所以for不了。整数可数，但实数不可数，字符串也不可数
+                              很多O(n)的算法有局限性
+                              而quick和merge sort是基于比较的排序，基于比较就可以return结果
+    """
+    # 其实可以用 dict 来 count，但能用简单的数据结构就用list啦
+    count_color = [0] * 3      # 这个需要额外的空间了
+    for each in nums:
+        count_color[each] += 1
+
+    # sorted
+    index = 0
+    for i in range(len(count_color)):
+        while count_color[i] > 0:
+            nums[index] = i
+            index += 1
+            count_color[i] -= 1
+
+    return nums
+
+# lintcode Medium 143 · Sort Colors II 彩虹排序 经典算法
+def sortColorsTwo3( colors, k):
+    """
+    瞎猜的话这题肯定不是O(n*k)和O(n^k)，因为这两个时间复杂度都比快排NlogN大
+    一般肯定要比NlogN快，不然做题就没啥意义啦
+    那么是NlogK还是KlogN呢？可以举特殊例子，
+    如果k=1就不需要排序，就是O(1)
+    如果k=2时就两种颜色分开，就partition一次就好是O(n)
+    所以乍一猜，是O(NlogK)，然后推它算法，一般有两种说法
+    （1）n * logK
+        降纬 n 次 logK的操作，涉及到log级的是 heap，红黑树，二分法…… 好像不太像
+    （2）logK次 的 n 次操作
+         归并排序：按树的结构拆解，计算每一层的时间复杂度是O(N)，一共O(logN)层
+         由此知道我们希望这题有logK层，希望 K/2  K/4 …… 1 ，每层是O(N)
+                                 那怎么去把K一分为二，直到分到1呢
+                                 把颜色范围一分为二（顺带把数组一分为二 ）
+
     【彩虹排序】解决sort颜色的问题
     这个就是所谓的彩虹排序rainbow Sort 。
     Rainbow Sort其实更像是quicksort的变种，
@@ -329,8 +384,9 @@ def sortColorsTwo3(self, colors, k):
     if not colors:
         return
     # rainbow sort, k 取中间颜色
-    self.raibow_sort(colors, 0, len(colors) - 1, 1, k)
-def raibow_sort(self, colors, start, end, color_from, color_to):
+    raibow_sort(colors, 0, len(colors) - 1, 1, k)
+def raibow_sort(colors, start, end, color_from, color_to):
+    #  只有一个数，或颜色只有一种
     if start >= end or color_from == color_to:
         return
 
@@ -345,8 +401,8 @@ def raibow_sort(self, colors, start, end, color_from, color_to):
     while left <= right:
         # 移动left指针
         while left <= right and colors[left] <= color_mid:
-            left += 1
-
+            left += 1  # 注意这个等号不能写在下面那个条件，因为求color_mid的整除操作是偏小的
+            # 若等号写在下面这行，会使得partition不均匀
         while left <= right and colors[right] > color_mid:
             right -= 1
 
@@ -356,12 +412,12 @@ def raibow_sort(self, colors, start, end, color_from, color_to):
             left += 1
             right -= 1
 
-    self.raibow_sort(colors, start, right, color_from, color_mid)  # 好像 color_mid-1 写成 color_mid 也行
-    self.raibow_sort(colors, left, end, color_mid + 1, color_to)
-
+    raibow_sort(colors, start, right, color_from, color_mid)  # 好像 color_mid-1 写成 color_mid 也行
+    raibow_sort(colors, left, end, color_mid + 1, color_to)
 
 if __name__ == '__main__':
-    array = [2, 8, 5, 2, 4, 6, 3]
+    array = [3,2,1,4,5]
+    quick_sort(array)
 
     for num in array:
         print(num, end = ' ')

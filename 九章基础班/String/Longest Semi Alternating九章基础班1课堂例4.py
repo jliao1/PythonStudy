@@ -1,5 +1,5 @@
 '''
-九章算法基础班：Longest Semi Alternating Substring 05.02.2021
+九章基础班：Longest Semi Alternating Substring 05.02.2021
 Description
 You are given a string SS of length NN containing only characters a and b.
 A substring (contiguous fragment) of SS is called a semi-alternating substring
