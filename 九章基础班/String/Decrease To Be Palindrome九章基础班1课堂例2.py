@@ -29,7 +29,7 @@ class Solution:
             return 0
 
         minStep = 0
-        # 需要两个指针 (小技巧，双指针)
+        # 需要两个指针 (小技巧，wk1_双指针)
         left, right = 0, len(s) - 1
 
         while left < right:

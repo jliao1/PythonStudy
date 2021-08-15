@@ -148,8 +148,12 @@ class Solution:
         """
         pass
 
+
+
+
 if __name__ == '__main__':
 
-    sol = Solution()
-    l = sol.moveZeroes([0, 1, 0, 3, 12])
+
+    l = haha("15:15:00","15:15:12")
     print(l)
+    pass

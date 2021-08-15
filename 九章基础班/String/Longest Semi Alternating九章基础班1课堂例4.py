@@ -11,7 +11,7 @@ semi-alternating substring of SS.
 
 
 
-感悟：双指针，提炼解题的关键是 “it does not contain three identical consecutive characters”
+感悟：wk1_双指针，提炼解题的关键是 “it does not contain three identical consecutive characters”
 
 思路
 （1）brute force  求出所有的子串, 找里面是否有连续相同的3个字母,
@@ -31,7 +31,7 @@ semi-alternating substring of SS.
     比如一般计算two sum，就会让你计算 three sum，four sum
 
 自己做完后的总结：
-    双指针 left 和 right  可以写在while循环里前进
+    wk1_双指针 left 和 right  可以写在while循环里前进
     但如果 right 可以写在 for 循环里最好，这样可以处理每一位了
     比如 for right in range(0, len(string)):
 
@@ -46,7 +46,7 @@ class Solution:
     # 九章老师讲课 版本
     def longestSemiAlternatingSubstring1(self, s):
         # 比如  "baaabbabbb"
-        # 双指针  | |
+        # wk1_双指针  | |
 
         k = 3       # 不能 contain k 个 identical consecutive chars, 本题k是3
         n = len(s)  # 字符串长度

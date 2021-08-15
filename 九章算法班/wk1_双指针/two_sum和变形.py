@@ -1,5 +1,5 @@
 """
-双指针(竟然是可以避免重复的)
+wk1_双指针(竟然是可以避免重复的)
 哈希表
 partition
 降维，折半查找
@@ -161,7 +161,7 @@ class TwoSum1:
 
 # lintcode easy 607 · Two Sum III - Data structure design 双指针做法
 class TwoSum2:
-    """双指针, 但add是O(n)所以超时了啦。但这也是一种思路"""
+    """wk1_双指针, 但add是O(n)所以超时了啦。但这也是一种思路"""
     def __init__(self):
         self.nums = []
 
@@ -174,7 +174,7 @@ class TwoSum2:
                 self.nums[index - 1], self.nums[index] = self.nums[index], self.nums[index - 1]
                 index -= 1
 
-    # 双指针, 基于排序数组做是O(n)
+    # wk1_双指针, 基于排序数组做是O(n)
     def find(self, value):
         left, right = 0, len(self.nums) - 1
         while left > right:
