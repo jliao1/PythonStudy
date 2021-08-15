@@ -204,7 +204,7 @@ class Solution:
 
         return res
 
-    # lintcode(力扣144) Easy 66 · Binary Tree Preorder Traversal  这道题挑战让你用iterative写法
+    # lintcode Easy 66 · Binary Tree Preorder Traversal  这道题挑战让你用iterative写法
     def preorderTraversal_iterative(self, root):
         """
         时间O(n)

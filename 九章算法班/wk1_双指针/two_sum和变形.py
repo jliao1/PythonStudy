@@ -367,8 +367,57 @@ class ThreeSum:
 
         return res
 
+class Ladder:
+
+    # 领扣M 587 · Two Sum - Unique pairs  双指针做 时间复杂度O(NlogN)
+    def twoSum61(self, nums, target):
+        nums.sort()
+        left = 0
+        right = len(nums)-1
+        s = set()
+
+        while left < right:
+            a = nums[left]
+            b = nums[right]
+
+            if a+b == target:
+                s.add((a,b))
+                left += 1
+            if a+b > target:
+                right -= 1
+            if a+b < target:
+                left += 1
+
+        return len(s)
+
+    # 领扣M 587 · Two Sum - Unique pairs 哈希表来记录哪些查没查过  时间复杂度O(N)
+    def twoSum62(self, nums, target):
+        """
+        使用hashMap记录array中元素的使用情况，
+        未使用为0
+        使用过的为1
+        不去重，不排序，时间复杂度O(n)，但空间要耗占一些
+        """
+        if len(nums) <= 1:
+            return 0
+        dic = {}
+        num = 0
+        for num in nums:
+            temp = target - num
+            # 如果temp在dic里，并且 dic[temp] 没被使用过
+            if temp in dic and dic[temp] == 0:
+                # 配对了
+                num += 1
+                # temp 标记为使用
+                dic[temp] = 1
+                # num 标记为使用
+                dic[num] = 1
+            if num not in dic:
+                dic[num] = 0
+        return num
+
 if __name__ == '__main__':
     n = [2, 11, 7, 15]
-    sol = ThreeSum()
-    l = sol.fourSum([1,0,-1,-1,-1,-1,0,1,1,1,2], 2)
+    sol = Ladder()
+    l = sol.twoSum62([1,1,2,45,46,46], 47)
     pass

@@ -208,7 +208,7 @@ class Solution:
                 right -= 1
         return left
 
-    # lintcode(力扣75) Medium 148 · Sort Colors 方法是 counting sort
+    # lintcode Medium 148 · Sort Colors 方法是 counting sort
     def sortColors1(self, nums):
         """
         这种是 counting sort
@@ -234,7 +234,7 @@ class Solution:
 
         return nums
 
-    # lintcode(力扣75) Medium 148 · Sort Colors
+    # lintcode Medium 148 · Sort Colors
     def sortColors2(self, nums):
         """
         每次partition是O(n), 这里partition两次，遍历2次，也是O(n)
@@ -253,7 +253,7 @@ class Solution:
                 smaller_than_k += 1
                 A[smaller_than_k], A[i] = A[i], A[smaller_than_k]
 
-    # lintcode(力扣75) Medium 148 · Sort Colors
+    # lintcode Medium 148 · Sort Colors
     def sortColors3(self, nums):
         """
         如果只允许遍历1次数组？
@@ -284,7 +284,7 @@ class Solution:
 
             index += 1
 
-    # lintcode(力扣75) Medium 148 · Sort Colors
+    # lintcode Medium 148 · Sort Colors
     def sortColors4(self, nums):
         """
         思路

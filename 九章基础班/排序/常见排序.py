@@ -320,7 +320,7 @@ def partition(self, nums, start, end, k):
     # 情况3: right 和 left 中间隔了一个数，这个数就刚好是我们要找的数
     return nums[k]
 
-# lintcode(力扣75) Medium 148 · Sort Colors 方法是 counting sort
+# lintcode Medium 148 · Sort Colors 方法是 counting sort
 def sortColors1(self, nums):
     """
     这种是 counting sort
