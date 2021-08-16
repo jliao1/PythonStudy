@@ -671,7 +671,7 @@ class Solution:
 
         return answer
 
-    # lintcode(力扣148) Medium 98 · Sort List
+    # lintcode(力扣148) Medium 98 · Sort List 二分法处理 linkedlist
     def sortList1(self, head):
         if head is None: return None
 
@@ -722,7 +722,7 @@ class Solution:
             bs <<= 1
         return dummy.next
 
-    # lintcode Medium 98 · Sort List
+    # lintcode Medium 98 · Sort List recursive写法比较好理解
     def sortList_recursive(self, head):
         """
         Top Down Merge Sort，recursive版本
@@ -795,38 +795,48 @@ class Solution:
 
         length = self.get_len(head)
         sorted_dummy_head = ListNode(-1, head)
-        size = 1
+        # initialize
+        split_size = 1
 
-        while size < length:
+        while split_size < length:
+            '''
+            split_size先 = 1，先俩俩排序
+            split_size先 = 2，再四四排序
+            split_size先 = 4，再八八排序 直到最后
+            这就是 Bottom Up Merge Sort
+            '''
             # initialize
-            unsorted_remaining = sorted_dummy_head.next
+            unsorted = sorted_dummy_head.next
             sorted_tail = sorted_dummy_head
 
-            while unsorted_remaining:
-                first = unsorted_remaining
-                second = self.split(first, size)
-                unsorted_remaining = self.split(second, size)
-                sorted_tail = self.merge(first, second, sorted_tail)
+            while unsorted:
+                first, unsorted = self.split(unsorted, split_size)
+                # 返回的 unsorted 是 None 也没事，因为 split() 和 merge() 可以 handle 是None的情况
+                second, unsorted = self.split(unsorted, split_size)
+                sorted_tail = self.merge(sorted_tail, first, second)
+
             # double size
-            size = size * 2
+            split_size = split_size * 2
 
         return sorted_dummy_head.next
-    def split(self, head, step):
+    def split(self, head, split_size):
+        first_head = head
+
         i = 1
-        while (i < step and head):
+        while i < split_size and head:
             head = head.next
             i += 1
 
         if head is None:
-            return None
+            return first_head, None
 
         # disconnect
-        temp = head.next
+        second_head = head.next
         head.next = None
 
-        return temp
-    def merge(self, left, right, head):
-        cur = head
+        return first_head, second_head
+    def merge(self, sorted_tail, left, right):
+        cur = sorted_tail
         while left and right:
             if left.val < right.val:
                 cur.next, left = left, left.next
@@ -1019,6 +1029,23 @@ def largestNumber_wrong(nums):
 
 if __name__ == '__main__':
     sol = Solution()
-    l = sol.moveZeroes([1, 0, 1, 2, 0,2])
+    node1 = ListNode(3)
+    node2 = ListNode(1)
+    node3 = ListNode(6)
+    node4 = ListNode(4)
+    node5 = ListNode(5)
+    node6 = ListNode(2)
+    node7 = ListNode(9)
+    node8 = ListNode(0)
+    node9 = ListNode(10)
+    node1.next = node2
+    node2.next = node3
+    node3.next = node4
+    node4.next = node5
+    node5.next = node6
+    node6.next = node7
+    node7.next = node8
+    node8.next = node9
+    l = sol.sortList_iterative(node1)
     print(l)
     pass

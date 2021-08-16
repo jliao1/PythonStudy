@@ -252,11 +252,12 @@ class Solution:
         sorted array 是 rotated sorted array的一个中间产物
         sorted array 是 ∈ rotated sorted array 的，二分后子问题也是跟原问题一样是 rotated sorted array
         看到一些数据，具像化在脑子里
-          / ｜
+         / ｜
         /  ｜          图形结构是这样
         -------------   哐叽一下掉下来
             ｜   /
             ｜  /       找的是右半部分第一个值 ≤ 最后一个值
+        OOOO  XXX
         """
         if not nums:
             return -1
@@ -268,13 +269,13 @@ class Solution:
         while start + 1 < end:
             mid = (start + end) // 2
             if nums[mid] <= target:
-                end = mid
+                end = mid   # 向左找
             else:
-                start = mid
+                start = mid  # 向右找
 
         return min(nums[start], nums[end])
 
-    # lintcode Medium 159 · Find Minimum in Rotated Sorted Array 继续 OOXX模型化
+    # lintcode Medium 62 · Search in Rotated Sorted Array 继续 OOXX模型化
     def search1(self, A, target):
         """
         方法1：可以像159题那样先找到最小值所在的位置，然后再在最小值左侧或者右侧去找target。用了2次二分法
@@ -286,10 +287,13 @@ class Solution:
         min_index = self.find_min(A)
 
         if A[min_index] <= target <= A[-1]:
+            # 右下部分
             return self.binary_search(A, target, min_index, len(A) - 1)
         elif A[0] <= target <= A[min_index-1]:
+            # 左上部分
             return self.binary_search(A, target, 0, min_index-1)
         else:
+            # 右下/左上 都没找到
             return -1
     def binary_search(self, A, target, start, end):
         while start + 1 < end:
@@ -324,12 +328,12 @@ class Solution:
         else:
             return end
 
-    # lintcode Medium 159 · Find Minimum in Rotated Sorted Array 继续 OOXX模型化
+    # lintcode Medium 62 · Search in Rotated Sorted Array 继续 OOXX 模型化
     def search2(self, A, target):
         """
         二分完了后，对象的属性是不能变的。二分之前是一个rotated sorted array，sorted array也是rotated sorted array的
         回归二分法的本质，切一刀mid
-        看看mid在左上部分，还是右下部分，是可以判断的  这就分成4种情况判断了
+        主要是看mid在左上部分，还是右下部分，是可以判断的  这就分成4种情况判断了
         """
         if not A:
             return -1
@@ -340,7 +344,7 @@ class Solution:
             mid = (start + end) // 2
 
             if A[mid] >= A[start]:
-                # 如果 mid 是在左上角
+                # 如果 mid 在左上角
                 # 左范围是
                 if A[start] <= target <= A[mid]:  # 做范围是个sorted array 也是 rotated sorted array
                     end = mid   # 往左边去
@@ -432,7 +436,70 @@ class Solution:
     def get_pieces(self, L, length):
         return sum(l // length for l in L)
 
+
+    # 四重境界 OA题 Global maximum 题目 https://leetcode.com/discuss/interview-question/1215681/airbnb-oa-global-maximum
+    def findMaximum(self, A, K):
+        """时间复杂度O[Nlog(end)] 或者 O(NlogN)， 看 end 和 N谁更大了"""
+        n = len(A)
+        A.sort()  # 这个时间复杂度是O(NlogN)
+
+        # 注意这个start和end是答案范围，在此范围里二分
+        start = 0
+        end = A[n - 1] - A[0]
+
+        while start + 1 < end:
+            mid = (start + end) // 2
+            # check whether it is possible to get a subString of size K with a minimum difference among any pair equal to mid.
+            # 是否存在一个是 K size 的 sub_array, 这个 sub_array 里 两两的差，最小是 mid
+            if self.exist_sub_of_size_k(A, K, mid):
+                # OO：如果符合条件
+                # 去right half 找，因为这题要求的 mid 尽量大
+                start = mid
+            else:
+                # XX：如果不如何条件，K size 的sub-array，里面元素两两差，最小是 mid的，没有
+                # 说明是 取值 太大导致的，就往left half去找，取值小点儿
+                end = mid
+
+        if self.exist_sub_of_size_k(A, K, end):
+            return end
+        if self.exist_sub_of_size_k(A, K, start):
+            return start
+
+        return res
+    def exist_sub_of_size_k(self, array, K, min_difference):
+        """
+        看 array 里 是否存在一个 sub-array，它的 minimum difference among any pair equal to "min_difference"
+        这个 sub-array 里的元素的两两之差, 最小的差是 "min_difference"
+        如果是的话，返回 true; 找不到的话返回 False
+        时间复杂度O(n)
+        """
+        # 注意, 传进来的array已经是sort好的了
+
+        len_of_sub = 1
+        sub = [array[0]]
+        last = array[0]
+
+        for i in range(1, len(array)):  # i 从第二个数开始
+            '''
+            因为 array 已经是 sorted 的从 小->大的
+            在pick元素的时候，只要 这个array[i] 与 last 之差大于 min_difference
+            就能保证 shortest_sub 里俩俩之差，最小的是 min_difference 啦
+            '''
+            if array[i] - last >= min_difference:
+                # 说明 array[i] 符合要求，pick 它!
+                sub.append(array[i])
+                # 把last更新一下
+                last = array[i]
+                len_of_sub += 1
+                # 每pick完一个元素，检查一下是否符合想要的K长度，是的话就立刻返回, 这样才能保证找到符合要求的sub是shortest的
+                if (len_of_sub == K):
+                    print("shortest_sub:", sub)  # 这条打印是为了测试用的
+                    return True
+        return False
+
 if __name__ == '__main__':
     sol = Solution()
-    res = sol.search([1001,10001,10007,1,10,101,201], 10001)
+    A = [1,2,3,4]
+    m = 3
+    res = sol.findMaximum(A, m )
     print(res)

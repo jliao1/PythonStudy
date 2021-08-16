@@ -452,7 +452,7 @@ class Solution:
             reverse = reverse.next
         return True
 
-    # find the middle node (if even, choose the latter one)
+    # 领扣228 find the middle node (if even, choose the latter one)
     def get_M(self, head):
         fast = head
         slow = head

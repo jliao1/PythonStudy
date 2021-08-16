@@ -206,7 +206,7 @@ def quick_sort_helper(A, start, end):
         while left <= right and A[left] < pivot:
             left += 1   # 考虑这条语句执行多少次就可以了， left最多+n次
     '''
-    # 递归出口
+    # 递归出口: 必须是 >= 不能是 ==，因为比如输入是[1,2] start会大于end的
     if start >= end:
         # 越界了，或只剩1个数了，就不用排了
         return
@@ -270,7 +270,7 @@ def quick_sort_helper(A, start, end):
     quick_sort_helper(A, start, right)
     quick_sort_helper(A, left, end)
 
-# lintcode Medium 5 · Kth Largest Element
+# 二分查找的味儿 领扣M 5 · Kth Largest Element 跟领扣461一样 461 · Kth Smallest Numbers in Unsorted Array
 def quickSelect(self, A, k):
     """
     最容易想到的是直接排序，返回第k大的值。时间复杂度是O(nlogn)
@@ -293,9 +293,9 @@ def partition(self, nums, start, end, k):
     """
     During the process, it's guaranteed start <= k <= end
     """
-    if start == end:
+    if start == end: # 也可以写 start >= end
         # 说明找到了
-        return nums[k]
+        return nums[k] # 也可以写成 nums[start] 或 nums[end]
 
     left, right = start, end
     pivot = nums[(start + end) // 2]
@@ -313,11 +313,11 @@ def partition(self, nums, start, end, k):
         # pivot 左区间都小于等于 pivot
         return self.partition(nums, start, right, k)
     # 情况2
-    if k >= left:
+    if left <= k:
         # pivot 右区间都大于等于 pivot
         return self.partition(nums, left, end, k)
 
-    # 情况3: right 和 left 中间隔了一个数，这个数就刚好是我们要找的数
+    # 情况3: left < k < right, right 和 left 中间隔了一个数，这个数就刚好是我们要找的数
     return nums[k]
 
 # lintcode Medium 148 · Sort Colors 方法是 counting sort
@@ -416,7 +416,7 @@ def raibow_sort(colors, start, end, color_from, color_to):
     raibow_sort(colors, left, end, color_mid + 1, color_to)
 
 if __name__ == '__main__':
-    array = [3,2,1,4,5]
+    array = [1,3]
     quick_sort(array)
 
     for num in array:

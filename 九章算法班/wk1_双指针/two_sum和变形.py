@@ -6,6 +6,18 @@ partition
 批量统计
 """
 class Solution:
+    # lintcode easy 608 · Two Sum 双指针做法
+    def twoSum(self, nums, target):
+        l, r = 0, len(nums)-1
+        while l < r:
+            value = nums[l] + nums[r]
+            if value == target:
+                return [l+1, r+1]
+            elif value < target:
+                l += 1
+            else:
+                r -= 1
+        return []
 
     # lintcode easy 56 · Two Sum 双指针做法
     def twoSum1(self, nums, target):
@@ -18,11 +30,12 @@ class Solution:
                                         小于的话，排除掉最小的数
                                         等于，就找到答案了
 
-        如果要求返回数组里的具体数字就好，如果输入数据是已经排序好了的
-        那双指针的做法时间复杂度是O(n), 空间是O(1)  比哈希表做法好
+        如果要求返回数组里的具体数字就好，
+        或 如果输入数据是已经排序好了的（方便返回index），就是领扣608题
+        那双指针的做法时间复杂度就是O(n), 空间是O(1)  这比哈希表做法好
 
-        但这道题要求返回的是 index，
-        所以双指针做法，排序要 NlogN，空间也要用到 O(n) 来存 index。
+        但这道题输入的nums是无序的，要求返回的是 index，
+        所以双指针做法，先排序要 NlogN，空间也要用到 O(n) 来存 index。
         而哈希表做法时间空间都是O(n), 哈希表更好
         '''
         if len(nums) < 2:
@@ -98,6 +111,32 @@ class Solution:
                 left += 1
 
         return count
+
+    # lintcode Medium 533 · Two Sum - Closest to target
+    def twoSumClosest(self, nums, target):
+        """
+        逻辑上和基础的2 sum一样，反正就是一直往 target 靠。 小了就left指针右移，大了就right指针左移
+        在往 target 靠的过程中，
+        注意每次更新 closest 的时候取较小者
+        这一路下来就能找到最小
+        """
+        nums.sort()
+
+        left = 0
+        right = len(nums)-1
+
+        closest = float('inf')
+
+        while left < right:
+            temp = nums[left] + nums[right]
+            closest = min(closest, abs(temp-target))
+            if temp < target:
+                left += 1
+            if target < temp:
+                right -= 1
+            if temp == target:
+                break
+        return closest
 
 # lintcode easy 607 · Two Sum III - Data structure design 哈希表做法
 class TwoSum1:
@@ -418,6 +457,6 @@ class Ladder:
 
 if __name__ == '__main__':
     n = [2, 11, 7, 15]
-    sol = Ladder()
-    l = sol.twoSum62([1,1,2,45,46,46], 47)
+    sol = Solution()
+    l = sol.twoSumClosest([-1,2,1,-4],4)
     pass

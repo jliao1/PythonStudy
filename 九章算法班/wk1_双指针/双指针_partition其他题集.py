@@ -150,10 +150,5 @@ class Solution:
 
 
 
-
 if __name__ == '__main__':
-
-
-    l = haha("15:15:00","15:15:12")
-    print(l)
     pass
