@@ -4,7 +4,7 @@ class Node:
         self.next = None
 
 # LintCode Easy 492 · Implement Queue by Linked List
-class MyQueue:
+class MyQueue1:
 
     def __init__(self):
         # before_head的next其实是head，目的是不用区分头节点和后面的点（不用分开操作）
@@ -38,5 +38,30 @@ class MyQueue:
 
         # 然后把 head 给dequeue了（其实就是把before_head指针后移）
         self.before_head.next = self.before_head.next.next
+
+        return res
+
+# LintCode Easy 492 · Implement Queue by Linked List 我自己写的
+class MyQueue2:
+
+    def __init__(self):
+        # 初始化一下，这里不要 self.tail = self.head 因为 self.head 此时是None接不上的
+        self.head = None
+        self.tail = None
+
+    def enqueue(self, item):
+        if not self.head:
+            self.head = Node(item)
+            self.tail = self.head
+        else:
+            self.tail.next = Node(item)
+            self.tail = self.tail.next
+
+    def dequeue(self):
+        if not self.head:
+            return -1
+
+        res = self.head.val
+        self.head = self.head.next
 
         return res

@@ -333,7 +333,7 @@ class Solution:
         collect(root, 0)
         return res
 
-    # Lintcode(力扣572) Medium 245 · Subtree 分治法 做法
+    # Lintcode(力扣572) Medium 245 · Subtree wk2_分治法 做法
     def isSubtree1(self, T1, T2):
         """
         有几个edge case需要根面试官确认：
@@ -447,6 +447,31 @@ class Solution:
         collect(root)
         return ans
 
+    # 自练 领扣 E 1181 · Diameter of Binary Tree
+    def diameterOfBinaryTree(self, root):
+        self.length = 0
+        if not root:
+            return self.length
+
+        self.height(root)
+
+        return self.length
+    def height(self, root):
+        if not root:
+            return 0
+
+        left_height = self.height(root.left)
+        right_height = self.height(root.right)
+
+        if root.left and root.right:
+            self.lenghth = max((left_height + right_height), self.length)
+        elif root.left and not root.right:
+            self.lenghth = max(left_height, self.length)
+        elif root.right and not root.left:
+            self.lenghth = max(right_height, self.length)
+
+        return max(left_height, right_height) + 1
+
 
 # 建立个二叉树，测试用
 def build_tree1():
@@ -535,23 +560,35 @@ def build_tree3():
 
     return node_1
 
+def build_tree4():
+    """
+        1
+       / \
+      2   3
+     / \
+    4   5
+    """
+    node_1 = TreeNode(1)
+    node_2 = TreeNode(2)
+    node_3 = TreeNode(3)
+    node_4 = TreeNode(4)
+    node_5 = TreeNode(5)
+
+    node_1.left = node_2
+    node_1.right = node_3
+    node_2.left = node_4
+    node_2.right = node_5
+
+    return node_1
+
 if __name__ == '__main__':
 
 
-    root = build_tree2()
+    root = build_tree4()
 
     sol = Solution()
-    l = sol.findDuplicateSubtrees1(root)
+    l = sol.diameterOfBinaryTree(root)
     print(l)
-
-    n1 = TreeNode(1)
-    n2 = TreeNode(2)
-    n3 = TreeNode(3)
-    n1.left = n2
-    n1.right = n3
-    n2 = None
-
-    pass
 
 
     pass

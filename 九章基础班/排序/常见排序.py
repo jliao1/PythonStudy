@@ -193,7 +193,7 @@ worst case下是O(n^2)，比如输入的数据已经排序好了，每次却选�
 quicksort 是不stable的 
 '''
 # lintcode Easy 464 · Sort Integers II
-def quick_sort(array): # 这个代码要背. 思路是先整体有序，再局部有序。分治法
+def quick_sort(array): # 这个代码要背. 思路是先整体有序，再局部有序。wk2_分治法
     if not array:
         return
     quick_sort_helper(array, 0, len(array)-1)

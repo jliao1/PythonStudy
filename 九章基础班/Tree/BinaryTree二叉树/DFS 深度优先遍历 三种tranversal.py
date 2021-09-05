@@ -927,6 +927,7 @@ class Solution:
         一是当前subtree能对parent tree父树贡献什么，挑选左右子树谁更大，是分治法
 
         由于是dfs所以时间复杂度是O(n)啦
+        与领扣1181很像
         """
         if not root:
             return 0
@@ -948,6 +949,31 @@ class Solution:
         self.max_sum = max(self.max_sum, root.val + left + right, curr_max_to_parent)
 
         return curr_max_to_parent
+
+    # 自练 领扣 E 1181 · Diameter of Binary Tree
+    def diameterOfBinaryTree(self, root):
+        """
+        时间,空间复杂度O(n)
+        与领扣94很，做的次数：1，8.29做的
+        """
+        self.length = 0
+        if not root:
+            return self.length
+
+        self.height(root)
+
+        return self.length
+    def height(self, root):
+        if not root:
+            return 0
+
+        left_height = self.height(root.left)
+        right_height = self.height(root.right)
+
+        self.length = max((left_height + right_height), self.length)
+
+        return max(left_height, right_height) + 1
+
 
     # Lintcode Medium 1534 · Convert Binary Search Tree to Sorted Doubly Linked List
     def treeToDoublyList(self, root):
