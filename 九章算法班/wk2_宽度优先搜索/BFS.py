@@ -673,7 +673,7 @@ class Solution:  # 令狐冲讲课例题
             return False
 
         return True
-
+    #
     # 领扣 M 788 · The Maze II 复杂图的最短路径，把二维复杂图 转化成三纬 简单图（做BFS解决的） 这个写法比法1简单，但可能比较抽象
     def shortestDistance2(self, maze, start, destination) -> int:
         """时间复杂度是O(mn) 至少chris是这么说的，因为每个点会visit 5次(有5个directons)"""
