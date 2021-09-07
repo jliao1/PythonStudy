@@ -562,7 +562,6 @@ class Solution:  # 令狐冲讲课例题
             return ''.join(topo_order)
 
         return ''
-
     def build_graph892(self, words):
         graph = {}
         # build nodes:   易错点,如果同时 build nodes 和 edges比较绕，那就分开build
@@ -588,7 +587,6 @@ class Solution:  # 令狐冲讲课例题
                     return None
 
         return graph
-
     def get_indegrees892(self, graph):
         indegrees = {node: 0 for node in graph}
         for node in graph:  # for c in graph.keys():
@@ -597,6 +595,160 @@ class Solution:  # 令狐冲讲课例题
                 indegrees[c] += 1
         return indegrees
 
+    # 领扣 M 788 · The Maze II 复杂图的最短路径，用 SPFA 来解决的（就是在简单图的BFS上作变形）
+    def shortestDistance1(self, maze, start, destination) -> int:
+        """
+        1.就着example把跟着代码走一遍，好难啊
+        2.除了层级，还要顾到走了多少步. 所以这不是一个简单图！！！不能用层级来算步数！！
+        3.edges的weight不一样，算是复杂图，用 SPFA 解法
+            把所有 nodes 的 step 设置为 无限大
+            除非遇到 node 的 step 更小了，再更新这个 node 的 step
+            （SPFA解决不了edge weight是负数的那种）
+
+        """
+        from collections import deque
+
+        # 把 start 和 destination 变成 tuple
+        start = tuple(start)
+        destination = tuple(destination)
+
+        # initialize all possible spaces' steps as infinite
+        steps = self.initialize_posible_spaces_infinite(maze)
+
+        # 开始 BFS
+        queue = deque([start])
+        steps[start] = 0  # 起点的step设为0
+
+        while queue:
+            current_node = queue.popleft()
+
+            # 返回的 next_nodes 是个字典的数据结构
+            next_nodes_new_step = self.to_next_nodes_steps(maze, current_node, steps[current_node])
+
+            for next_node in next_nodes_new_step:
+                # 如果 原来的 next_node 的 step 已经小于等于 new step了，就跳过，处理这个点
+                if steps[next_node] <= next_nodes_new_step[next_node]:
+                    continue
+
+                # 发现 new node 的 new step 比原来 step 更小，再处理
+                steps[next_node] = next_nodes_new_step[next_node]
+                queue.append(next_node)
+
+        if steps[destination] == float('inf'):
+            return -1
+        else:
+            return steps[destination]
+    def initialize_posible_spaces_infinite(self, maze):
+        steps = {}
+        for x in range(len(maze)):
+            for y in range(len(maze[0])):
+                if maze[x][y] == 0:
+                    steps[(x, y)] = float('inf')
+        return steps
+    def to_next_nodes_steps(self, maze, this_node, pre_steps):
+        next_nodes = {}
+        x, y = this_node
+        DIRECTIONS = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+
+        for dx, dy in DIRECTIONS:
+            next_x = x
+            next_y = y
+            count_steps = 0
+
+            while self.is_valid2(next_x + dx, next_y + dy, maze):  # 这里加一个在不在dict里的检查
+                next_x += dx
+                next_y += dy
+                count_steps += 1
+
+            if count_steps > 0:
+                next_nodes[(next_x, next_y)] = pre_steps + count_steps
+
+        return next_nodes
+    def is_valid2(self, x, y, maze):
+        # 没有撞墙也没有走出地图就是 valid
+        if not (0 <= x < len(maze) and 0 <= y < len(maze[0])):
+            return False
+
+        if maze[x][y] == 1:
+            return False
+
+        return True
+
+    # 领扣 M 788 · The Maze II 复杂图的最短路径，把二维复杂图 转化成三纬 简单图（做BFS解决的） 这个写法比法1简单，但可能比较抽象
+    def shortestDistance2(self, maze, start, destination) -> int:
+        """时间复杂度是O(mn) 至少chris是这么说的，因为每个点会visit 5次(有5个directons)"""
+        from collections import deque
+        #               U       R      D      L
+        DIRECTIONS = [(0, -1), (1, 0), (0, 1), (-1, 0)] # 其实除了4个明确方向，还有1个 None （就是需要重新选择方向的状态）
+
+        # make "start" and "destination" as tuple cuz they are list at the beigining
+        start = (start[0], start[1], None)
+        destination = (destination[0], destination[1], None)
+
+        # initialize
+        queue = deque([start])
+        visited = {start: 0}
+
+        while queue:
+            # current node info
+            curr_node = queue.popleft()
+            curr_x = curr_node[0]
+            curr_y = curr_node[1]
+            curr_direction = curr_node[2]
+
+            # stopping case
+            if curr_node == destination:
+                return visited[curr_node]
+
+            # case 1: next node should re-choose a direction
+            if curr_direction == None:
+                # choose next possible direction
+                for next_direction in DIRECTIONS:
+                    # calculate next node info
+                    next_x = curr_x + next_direction[0]
+                    next_y = curr_y + next_direction[1]
+                    next_node = (next_x, next_y, next_direction)
+
+                    if self.is_vaild3(maze, next_node):
+                        self.process_next_node(next_node, curr_node, visited, queue)
+
+            # case 2: next node will go along its current direction
+            if curr_direction != None:
+                # calculate next node info with current direction
+                next_direction = curr_direction
+                next_x = curr_x + next_direction[0]
+                next_y = curr_y + next_direction[1]
+                next_node = (next_x, next_y, next_direction)
+
+                # case 2.1: if next_node is valid
+                if self.is_vaild3(maze, next_node):
+                    self.process_next_node(next_node, curr_node, visited, queue)
+                else:
+                    # case 2.2: if next_node is NOT valid, that means next node will meet a barrier or boundary
+                    #           so we should go back the current node's x and y, but direction should set to None
+                    next_node = (curr_x, curr_y, None) # assign next_node’s x value with current node‘s x
+                    if next_node in visited:
+                        continue
+                    queue.append(next_node)
+                    visited[next_node] = visited[curr_node]
+
+        return -1
+    def process_next_node(self, next_node, curr_node, visited, queue):
+        if next_node in visited:
+            return
+        queue.append(next_node)
+        visited[next_node] = visited[curr_node] + 1
+    def is_vaild3(self, maze, node):
+        n, m = len(maze), len(maze[0])
+        x = node[0]
+        y = node[1]
+
+        if x < 0 or x >= n:
+            return False
+        if y < 0 or y >= m:
+            return False
+
+        return not maze[x][y]
 
 class TreeNode:
     def __init__(self, val):
@@ -612,24 +764,11 @@ class DirectedGraphNode:
         self.neighbors = []
 
 if __name__ == '__main__':
-    aaa = ['a', 'aa', 'aaa']
-    aaa.sort()
-    parameter = [[0,1,0],
-                 [0,0,1],
-                 [0,0,0]]
 
-    source = [2, 0]
-    destination = [2, 2]
-
-    n = 3
-    prerequisites = [[1,2],[0,1],[2,0]]
-
-    org = [1,2,3]
-    seqs = [[3,2],[2,1]]
-
-    Input = ["abc","ab"]
+    input = [[0,0,1,0,0],[0,0,0,0,0],[0,0,0,1,0],[1,1,0,1,1],[0,0,0,0,0]]
     sol = Solution()
-    l = sol.alienOrder2(Input)
+    l = sol.shortestDistance2(input, [0,4],[4,4])
+
     print(l)
 
     pass
