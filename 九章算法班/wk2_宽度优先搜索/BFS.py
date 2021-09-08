@@ -750,6 +750,7 @@ class Solution:  # 令狐冲讲课例题
 
         return not maze[x][y]
 
+
 class TreeNode:
     def __init__(self, val):
         self.val = val
