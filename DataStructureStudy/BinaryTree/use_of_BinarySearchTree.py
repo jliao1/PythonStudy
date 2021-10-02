@@ -5,10 +5,6 @@
 
 
 
-from 九章基础班.Tree.BinaryTree二叉树.BinarySearchTree import BST
-
-
-
 bst = BST()
 
 bst.add(10)

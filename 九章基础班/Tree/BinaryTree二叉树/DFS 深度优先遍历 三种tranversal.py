@@ -116,6 +116,16 @@ class TreeNode:
 - 空间复杂度是 O(h), call stack最深存树的高度个 recursion function
 '''
 
+'''
+空间复杂度
+如果在函数里开了个列表，列表里的元素是存在堆中的，就会占用堆空间。
+如果函数进行了递归调用，在递归的时候，会占用系统的 调用栈。
+所以在分析空间复杂度的时候，要分析 heap + stack 空间加起来。
+
+面试的时候，先问一下面试官，call stack空间算不算程序消耗。
+不算的话就是O(1)，没有占用额外的。
+算得话，与树的高度呈线性关系，介于logN和N之间（因为N个节点的二叉树画法是多种的）
+'''
 
 # 先序遍历 root left right
 def preorder_traverse(root):
@@ -129,16 +139,6 @@ def preorder_traverse(root):
     preorder_traverse(root.left)
     preorder_traverse(root.right)
 
-'''
-空间复杂度
-如果在函数里开了个列表，列表里的元素是存在堆中的，就会占用堆空间。
-如果函数进行了递归调用，在递归的时候，会占用系统的 调用栈。
-所以在分析空间复杂度的时候，要分析 heap + stack 空间加起来。
-
-面试的时候，先问一下面试官，call stack空间算不算程序消耗。
-不算的话就是O(1)，没有占用额外的。
-算得话，与树的高度呈线性关系，介于logN和N之间（因为N个节点的二叉树画法是多种的）
-'''
 # 中序遍历 left - root - right  用处是：判断是不是BST对它进行中序遍历，得到的如果是一个递增(非递减)序列，就对了
 def inorder_traverse(root):
     # 1 3 4 6 7 8 10 13 14
@@ -188,19 +188,19 @@ class Solution:
         if not root:
             return []
 
-        def to_leftmost_min(root):
+        def to_leftmost(root):
             while root:
                 stack.append(root)
                 root = root.left
 
         res = []
         stack = []
-        to_leftmost_min(root)
+        to_leftmost(root)
 
         while stack:
             node = stack.pop()
             res.append(node.val)
-            to_leftmost_min(node.right)
+            to_leftmost(node.right)
 
         return res
 
@@ -208,8 +208,7 @@ class Solution:
     def preorderTraversal_iterative(self, root):
         """
         时间O(n)
-        空间O(h)
-        depending on the tree structure, we could keep up to the entire tree, therefore, the space complexity is O(n)
+        空间O(h)  depending on the tree structure, we could keep up to the entire tree, therefore, the space complexity is O(n)
         """
         if root is None:
             return []
@@ -1084,12 +1083,10 @@ class BSTIterator:
 
 
 if __name__ == '__main__':
-    root = build_tree1()
-    inorder_traverse(root)
-    l = inorderTraversal(root)
-
+    root = build_tree2()
     sol = Solution()
-    res = sol.postorderTraversal_iterative2(root)
+    res = sol.inorderTraversal_iterative2(root)
+    print(res)
 
 
     pass

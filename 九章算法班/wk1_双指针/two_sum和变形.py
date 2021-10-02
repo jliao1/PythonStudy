@@ -6,7 +6,7 @@ partition
 批量统计
 """
 class Solution:
-    # lintcode easy 608 · Two Sum 双指针做法
+    # lintcode easy 608 · Two Sum II - Input array is sorted 双指针做法
     def twoSum(self, nums, target):
         l, r = 0, len(nums)-1
         while l < r:
@@ -248,12 +248,12 @@ class ThreeSum:
         这里是用双指针来做的，时间复杂度 O(n^2)，空间复杂度O(1)
         """
         self.res = []
-        # 先排序，要 return 的3个数字是要找 a ≤ b ≤ c的，后面找two sums也是要基于对于排序数组的操作
+        # 先排序，要 return 的3个数字是要找 a ≤ b ≤ c的，对a进行for循环，后面找two sums也是要基于对于排序数组的操作，方便去重
         nums.sort()
         # 开始降维了，由于a + b + c = 0, 下面这个 for 是对 a = nums[i] 来for的, 这样就把题目降成二维了
         for i in range(len(nums)):
-            # 下标有效检测    当 nums[i] 等于前一个数, 那就不需要再对 nums[i] 进行处理了
-            if (i-1) >= 0 and nums[i] == nums[i-1]:
+            # 下标有效检测    当 nums[i] 等于前一个数, 那就不需要再对 nums[i] 进行处理了，对nums[i]进行找的话找出来的情况一定比num[i-1]的少
+            if (i-1) >= 0 and nums[i] == nums[i-1]:  # 要养成习惯，当对
                 continue
             # 然后开始找，-a = b + c
             target = - nums[i]
@@ -261,7 +261,7 @@ class ThreeSum:
         return self.res
     def two_sum_equal_to(self, target, i, nums):
         # 由于two sum 也就是 b + c 的和是 target = -a = -nums[i]
-        # 是在 i+1 ~ len(nums)-1 范围内找的（就避免重复查找）
+        # 是在 i+1 ~ len(nums)-1 范围内找的（就避免重复查找，并且找出来的3个数字index肯定不同）
         left = i + 1
         right = len(nums) - 1
         while left < right:
@@ -273,8 +273,7 @@ class ThreeSum:
             else:  # two_sum == target:
                 self.res.append([nums[i], nums[left], nums[right]])
                 # 找到满足条件的，并不马上退出，因为还要继续往中间找直到 left=right
-                left += 1
-                right -= 1
+
                 '''
                 去重：这个是 left 移1步后，发现跟前一个相等，就为了避免重复，移到直到nums[left]跟前一数不等的时候
                       比如会有这种情况 -47 1 1 2 45 46 46
@@ -282,6 +281,7 @@ class ThreeSum:
                 left 和 right 移动一位后:   l        r  又找到一组1+46
                                                       为了避免重复加一个while循环 去掉这层重复
                 '''
+                left += 1
                 while (left < right) and nums[left] == nums[left-1]:
                     left += 1
 
@@ -455,8 +455,11 @@ class Ladder:
                 dic[num] = 0
         return num
 
+
 if __name__ == '__main__':
-    n = [2, 11, 7, 15]
+    n = [3,2,4]
+
+
     sol = Solution()
     l = sol.twoSumClosest([-1,2,1,-4],4)
     pass

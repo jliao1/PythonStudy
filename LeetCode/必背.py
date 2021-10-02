@@ -1,4 +1,7 @@
 """
+【次方怎么写】
+1000 = 10^3
+
 【String Split】
 好像string的slice时间复杂度是O(n)
 两种方法分割python多空格字符串

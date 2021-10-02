@@ -146,7 +146,7 @@ class Solution:
 
     # lintcode Medium 49 · Sort Letters by Case 一句话的解法
     def sortLetters2(self, chars):
-        # 出来的结果是小写在前，大写在后
+        # 出来的结果是小写在前，大写在后  (因为好像默认的在前)
         chars.sort(key=lambda c: c.isupper())
         pass
 

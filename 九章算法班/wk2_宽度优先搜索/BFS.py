@@ -163,7 +163,7 @@ def bfs(node):              # 注意是用node(地址)来作为keys，而不是n
         # 每次拿一个节点出来
         node = queue.popleft()
         # 把这个节点的所有邻居遍历一遍
-        for neighbor in node.get_neighbors():
+        for neighbor in node.get_neighbors547():
             # 如果这个邻居访问过了，就跳到下个邻居
             if neighbor in distance:
                 continue
@@ -219,7 +219,7 @@ class Solution:  # 令狐冲讲课例题
             for neighbor in node.neighbors:
                 new_node.neighbors.append(mapping[neighbor])
 
-    # 领扣 H 120·Word Ladder  抽象成最短路径的问题
+    # 领扣 H 120·Word Ladder  抽象成最短路径的问题 时间复杂度✓
     def ladderLength(self, start, end, dict_set):
         """
         这题虽然也不是直接graph的题
@@ -235,7 +235,9 @@ class Solution:  # 令狐冲讲课例题
                     lot - log
         hit - hot <  |     |  > cog
                     dot - dog
-        我觉得时间复杂度是O(V*L^2) 但我觉得是O(V*L^3)， 时间复杂度我觉得是O(V+L) 我也不知道我对不对
+
+        时间复杂度是O(N*L^2)   N是dict的长度
+        空间复杂度是O(N + 26L)， 不过一般 N >> L 的
         """
         dict_set.add(end)  # 因为最后要变成end，所以把end也加dict_set里头好generalize
         from collections import deque
@@ -249,8 +251,10 @@ class Solution:  # 令狐冲讲课例题
             if word == end:
                 return visited[word]
 
-            for neighbor in self.get_word_neighbors(word, dict_set):  # O(V*L^2) 因为对于每个vertex都要获取它的邻居
-                if neighbor in visited:                               # O(L)
+            # 26*L 次
+            neighbors = self.get_word_neighbors(word, dict_set) # 时间 O(26L^2)
+            for neighbor in neighbors:                          # for 循环了 26L 次
+                if neighbor in visited:                         # 时间 O(L)
                     continue
                 visited[neighbor] = visited[word] + 1
                 que.append(neighbor)
@@ -259,24 +263,24 @@ class Solution:  # 令狐冲讲课例题
     def get_word_neighbors(self, word, dict_set):
         """
         这个部分考对 string 的处理
-        这个时间复杂度要很小心，是O(L^2)  L是word的长度
-        还有一种代码写法时间复杂度是O(NL) (一般)N是远远大于L的，自然是O(L^2)比O(NL)更快
-        空间复杂度是O(L)
+        这个时间复杂度要很小心，是O(26L^2)  L是word的长度     （还有一种代码写法时间复杂度是O(NL) 一般N是远远大于L的，所以O(L^2)比O(NL)更快）
+
+        空间复杂度是O(26L)
         """
-        neighbors = []
-        for i in range(len(word)):  # 这句是 O(L)
-            left = word[:i]  # 这和下句是 O(L)  字符串切片
+        neighbors = []              # 决定了空间复杂度是 O(26L)
+        for i in range(len(word)):  # 这句时间是 O(L)
+            left = word[:i]         # 这和下句时间是 O(L)  字符串切片
             right = word[i + 1:]
             for char in 'abcdefghijklmnopqrstuvwxyz':
                 if char != word[i]:
-                    maybe_word = left + char + right  # 这句是 O(L), 字符串的组合
-                    if maybe_word in dict_set:  # 这句话是 O(L), L 是 maybe_word 的长度
-                        neighbors.append(maybe_word)  # 因为哈希表的任何一次增删查改的操作都是O(size of key)，
-                        #                               当key是整数的时候可以当O(1)因为整数就固定4个字节，
-                        #                               而key是字符串的时候是不定长的(不知道多少个字节)只能用L代表长度
+                    maybe_word = left + char + right    # 这句时间是 O(L), 字符串的组合
+                    if maybe_word in dict_set:          # 这句话时间是 O(L), L 是 maybe_word 的长度
+                        neighbors.append(maybe_word)    #           因为哈希表的任何一次增删查改的操作都是O(size of key)，
+                        # maybe_word有26L个不一样的放入                当key是整数的时候可以当O(1)因为整数就固定4个字节，
+                        #                                           而key是字符串的时候是不定长的(不知道多少个字节)只能用L代表长度
         return neighbors
 
-    # 领口 E 433 Number of Islands 连通块问题
+    # 领口 E 433 Number of Islands 连通块问题 时间复杂度✓
     def numIslands(self, grid):
         """
         这题虽然没有直接告诉是graph了，但有点像是求 有几个连通块的问题
@@ -285,7 +289,8 @@ class Solution:  # 令狐冲讲课例题
         二纬数组，变换成 坐标（这是个小技巧），坐标是有规律，从而找到每个坐标的邻居
 
         总的来讲，这个题是把每个点访问一遍，只有是岛的并且没访问过的才bfs
-        所以最快情况，全是岛屿的话，时间空间复杂度O(MN), M和N是这个矩阵的长宽，当然我也不知道我分析得对不对
+
+        所以最坏情况，全是岛屿的话，时间空间复杂度O(MN), M和N是这个矩阵的长宽
 
         """
         if not grid or not grid[0]:
@@ -327,6 +332,7 @@ class Solution:  # 令狐冲讲课例题
             x, y = queue.popleft()
             neighbors = [(x+delta_x, y+delta_y) for (delta_x, delta_y) in DIRECTIONS]
             for neighbor in neighbors:
+                #       valid 的意思是，要在range内，要是个岛，并且必须没在 visited 里出现过
                 if not self.is_valid(grid, neighbor[0], neighbor[1], visited):
                     continue                #     x         y
                 queue.append(neighbor)
@@ -673,7 +679,7 @@ class Solution:  # 令狐冲讲课例题
             return False
 
         return True
-    #
+
     # 领扣 M 788 · The Maze II 复杂图的最短路径，把二维复杂图 转化成三纬 简单图（做BFS解决的） 这个写法比法1简单，但可能比较抽象
     def shortestDistance2(self, maze, start, destination) -> int:
         """时间复杂度是O(mn) 至少chris是这么说的，因为每个点会visit 5次(有5个directons)"""
@@ -766,10 +772,11 @@ class DirectedGraphNode:
 
 if __name__ == '__main__':
 
-    input = [[0,0,1,0,0],[0,0,0,0,0],[0,0,0,1,0],[1,1,0,1,1],[0,0,0,0,0]]
-    sol = Solution()
-    l = sol.shortestDistance2(input, [0,4],[4,4])
-
-    print(l)
+    # input = [[0,0,1,0,0],[0,0,0,0,0],[0,0,0,1,0],[1,1,0,1,1],[0,0,0,0,0]]
+    # sol = Solution()
+    # l = sol.shortestDistance2(input, [0,4],[4,4])
+    #
+    # print(l)
+    #
 
     pass
