@@ -212,6 +212,8 @@ class Solution:
     # 力扣 11 M Container With Most Water 双指针滑动窗口greedy，唉还是有点不理解为啥这种做法就能找出 maximum
     def maxArea(self, height):
         """
+        第一种是暴力做法O(n^2),
+        第二种就是这种做法: 两个挡板比较，总是keep较高的挡板，两一个继续探索比较
         The intuition behind this approach is that the area formed between the lines will always be limited by the height of the shorter line.
         Further, the farther the lines, the more will be the area obtained.
         时间空间 O(1)
@@ -235,6 +237,72 @@ class Solution:
             else:
                 right -= 1
         return max_area
+
+    # 力扣 42 H Trapping Rain Water 双指针+找规律，智商题，唉
+    def trapRainWater1(self, heights):
+        """时间空间 O(n)"""
+        if not heights:
+            return 0
+        # 从左到右扫描一边数组，获得每个位置往左这一段的最大值
+        left_max = []
+        curt_max = -float('inf')
+        for height in heights:
+            curt_max = max(curt_max, height)
+            left_max.append(curt_max)
+
+        # 再从右到左扫描一次获得每个位置向右的最大值
+        right_max = []
+        curt_max = -float('inf')
+        for height in reversed(heights):
+            curt_max = max(curt_max, height)
+            right_max.append(curt_max)
+        right_max = right_max[::-1]
+
+        water = 0
+        n = len(heights)
+        # 再遍历一遍，累加每个位置上的盛水数目 = min(左侧最高，右侧最高) - 当前高度
+        for i in range(n):
+            water += (min(left_max[i], right_max[i]) - heights[i])
+        return water
+
+    # 力扣 42 H Trapping Rain Water 双指针+找规律，智商题，唉
+    def trapRainWater2(self, heights):
+        if not heights:
+            return 0
+
+        left = 0
+        right = len(heights) - 1
+
+        water = 0
+        left_max_height = heights[left]    # in the process left pointer goest to ->, record its highest height along the way
+        right_max_height = heights[right]  # in the process right pointer goest to <-, record its highest height along the way
+
+        while left <= right:  # 这个等号不能少！！因为我们先process了当前pointer指的数据再移动指针，可能会剩下left==right的情况最后未处理
+
+            if left_max_height <= right_max_height:
+                # look at left pointer's track
+                current_height = heights[left]
+                # update left_max_height if needed, 这种情况下装不了水
+                if current_height >= left_max_height:
+                    left_max_height = current_height
+                    left += 1
+                    continue
+                # 能走到这说明 current_height < left_max_height 说明可以装水了
+                water += (left_max_height - current_height) * 1
+                left += 1
+            else:
+                # look at right pointer's track
+                current_height = heights[right]
+                # update right_max_height if needed，这种情况下装不了水
+                if current_height >= right_max_height:
+                    right_max_height = current_height
+                    right -= 1
+                    continue
+                # 能走到这说明 current_height < right_max_height 说明可以装水了
+                water += (right_max_height - current_height) * 1
+                right -= 1
+
+        return water
 
     # 力扣 15 3Sum  双指针 + 降维 + 利用排序去重
     def threeSum(self, nums) :
@@ -692,10 +760,12 @@ class Solution:
         return max(List, key=lambda item: item[1])[0]
 
 
+
 if __name__ == '__main__':
-    input1 = "Bob. hIt, baLl"
-    input2 = ["bob", "hit"]
+    input1 = [5,5,1,7,1,1,5,2,7,6]
+    input2 = [1,8,6,2,5,4,8,3,7]
     sol = Solution()
-    res = sol.mostCommonWord(input1, input2)
+    ans = sol.maxArea(input2)
+    res = sol.trap(input1)
 
     print(res)

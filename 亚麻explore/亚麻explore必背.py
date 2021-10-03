@@ -32,7 +32,6 @@ find() 和 index() 时间复杂度好像是 n
 「快速生成list」
 v = [m[key] for key in m] # 用
 
-
 「按位sort」
 # 把英文小写字母转成 26位 array的下标
 count = [0] * 26
@@ -57,6 +56,12 @@ str.isalnum()  返回真如果all characters in the string are alphanumeric
 「二进制和十进制互换」
 to_binary = bin(integer)
 to_decimal = int(str,2)
+
+{翻转的一些事儿}
+逆序遍历：
+    for each in reversed(List):
+切片反转：
+    List[::-1]
 
 """
 
