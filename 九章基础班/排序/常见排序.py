@@ -71,7 +71,6 @@ def bubble_sort2(nums):
 - 先假设小的任务已经完成（实际上未完成）
 - 在此基础上完成大的任务，此时原来小的任务也就一并完成了
 """
-
 def merge_sort1(array):
     """
     时间复杂度：每层耗时N，一共有logN层(因为平衡)，所以就是NlogN
@@ -92,9 +91,9 @@ def merge_sort_helper1(array, left, right): # [left, right]
         return
 
     mid = (left + right) // 2     # [left, mid]   [mid +1, right]
-    merge_sort_helper1(array, left, mid)     # 左边有序了
+    merge_sort_helper1(array, left, mid)       # 左边有序了
     merge_sort_helper1(array, mid + 1, right)  # 右边有序了
-    merge1(array, left, right)               # 再合并
+    merge1(array, left, right)                 # 再合并
 def merge1(array, left, right):
     size = right - left + 1
     temp = [0 for _ in range(size)]
@@ -134,15 +133,16 @@ def merge_sort2(array):
     """
     tmp = [0 for _ in range(len(array))]
     merge_sort_helper2(array, 0, len(array) - 1, tmp)
+    # 最后排序好的又重新load到array里了
 def merge_sort_helper2(array, left, right, tmp): # [left, right]
     # 递归的终点，这种情况就不需要排序了
     if left >= right:
         return
 
     mid = (left + right) // 2     # [left, mid]   [mid +1, right]
-    merge_sort_helper2(array, left, mid, tmp)     # 左边有序了
+    merge_sort_helper2(array, left, mid, tmp)       # 左边有序了
     merge_sort_helper2(array, mid + 1, right, tmp)  # 右边有序了
-    merge2(array, left, right, tmp)               # 再合并
+    merge2(array, left, right, tmp)                 # 再合并
 def merge2(array, left, right, temp):
     size = right - left + 1
 
@@ -156,7 +156,7 @@ def merge2(array, left, right, temp):
 
     # 这个直接把左/右部分都merge了
     for k in range(size):
-        # 当右半边有数可取       并且      右半边没数可取     或             左半边数 <= 右半边
+        # 当右半边有数可取       并且 (     右半边没数可取     或             左半边数 <= 右半边数  )
         if left_part_i <= mid and (right_part_i > right or array[left_part_i] <= array[right_part_i]):
             temp[k] = array[left_part_i]
             left_part_i += 1
@@ -270,7 +270,7 @@ def quick_sort_helper(A, start, end):
     quick_sort_helper(A, start, right)
     quick_sort_helper(A, left, end)
 
-# 二分查找的味儿 领扣M 5 · Kth Largest Element 跟领扣461一样 461 · Kth Smallest Numbers in Unsorted Array
+# 二分查找的味儿 领扣M 5 · Kth Largest Element in an unsorted array  跟领扣461一样 461 · Kth Smallest Numbers in Unsorted Array
 def quickSelect(self, A, k):
     """
     最容易想到的是直接排序，返回第k大的值。时间复杂度是O(nlogn)
@@ -287,8 +287,10 @@ def quickSelect(self, A, k):
     """
     if not A or k < 1 or k > len(A):
         return None
-    # 为了方便编写代码，这里将第 k 大转换成第 [len(A) - k] 小问题。
+    # (1) Kth Largest Element 为了方便编写代码，这里将第k大转成第 [len(A) - k]小问题。  比如 1,3,4,2 第1大就是index=3的数字(从0开始算)
     return self.partition(A, 0, len(A) - 1, len(A) - k)
+    # (2) 如果是 Kth Smallest Numbers  比如 1,2,3,4,5  k = 3 就是返回大小该在index=2的数字
+    # return self.partition(A, 0, len(A) - 1, k-1)
 def partition(self, nums, start, end, k):
     """
     During the process, it's guaranteed start <= k <= end
@@ -333,7 +335,7 @@ def sortColors1(self, nums):
     array + 固定两三种元素 + O(N)时间 + O(1) 的空间 =》其实做两三次quick sort就好，看方法2
 
     counting sort是基于值的排序，时间复杂度可以做到O(n)，但为什么系统内的sort不用这个，因为range有可能会很大
-                              然后不可数，所以for不了。整数可数，但实数不可数，字符串也不可数
+                              如果不可数，所以for不了。整数可数，但实数不可数，字符串也不可数
                               很多O(n)的算法有局限性
                               而quick和merge sort是基于比较的排序，基于比较就可以return结果
     """
@@ -352,9 +354,14 @@ def sortColors1(self, nums):
 
     return nums
 
-# lintcode Medium 143 · Sort Colors II 彩虹排序 经典算法
+# lintcode Medium 143 · Sort Colors II 彩虹排序 rainbow Sort 经典算法 是quicksort变种
 def sortColorsTwo3( colors, k):
     """
+    Input:
+    [3,2,2,1,4] k = 4  color在1,2,3…,k
+    Output:
+    [1,2,2,3,4]
+
     瞎猜的话这题肯定不是O(n*k)和O(n^k)，因为这两个时间复杂度都比快排NlogN大
     一般肯定要比NlogN快，不然做题就没啥意义啦
     那么是NlogK还是KlogN呢？可以举特殊例子，

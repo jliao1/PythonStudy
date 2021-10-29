@@ -532,14 +532,13 @@ class Solution:
 
         while r < len(s) and l <= r:
 
-            c = s[r]
+            right_char = s[r]
 
-            if c in T and c not in S:
-                S[c] = 1
-            elif c in T and c in S:
-                S[c] += 1
+            if right_char in T:
+                S.setdefault(right_char,0)
+                S[right_char] += 1
 
-            while self.is_valid(T, S):
+            while self.minimum_window_is_valid(T, S):
 
                 current_len = r - l + 1
                 if current_len < min_len:
@@ -557,7 +556,7 @@ class Solution:
             r += 1
 
         return result
-    def is_valid(self, T, S):  # O(k)
+    def minimum_window_is_valid(self, T, S):  # O(k)
         for key in T:
             if key in S and T[key] <= S[key]:
                 continue
@@ -765,7 +764,7 @@ if __name__ == '__main__':
     input1 = [5,5,1,7,1,1,5,2,7,6]
     input2 = [1,8,6,2,5,4,8,3,7]
     sol = Solution()
-    ans = sol.maxArea(input2)
+    ans = sol.minWindow2("ADOBECODEBANC", 'ABC')
     res = sol.trap(input1)
 
     print(res)

@@ -491,35 +491,80 @@ class Solution:
         return dummy.next
 
 
+    # Easy  crowdstrike题，一个二进制用linkedlist表示，转换成十进制返回
+    def getNumber( binary):
+        if not binary:
+            return 0
+
+        string = []
+
+        while binary:
+            string.append(str(binary.val))
+            binary = binary.next
+
+        string = ''.join(string)
+        to_decimal = int(string, 2)
+        return to_decimal
+    """
+        result = 0
+        while head: 
+            result = result*2 + head.val 
+            head = head.next 
+        return result
+    
+    """
+
+    def preprocessDate(dates) :
+        month = {"Jan": "01",
+                 "Feb": "02",
+                 "Mar": "03",
+                 "Apr": "04",
+                 "May": "05",
+                 "Jun": "06",
+                 "Jul": "07",
+                 "Aug": "08",
+                 "Sep": "09",
+                 "Oct": "10",
+                 "Nov": "11",
+                 "Dec": "12"}
+        res = ""
+        dates = dates.split()
+        res += dates[2] + "-"
+        res += month[dates[1]] + "-"
+        day = ""
+        for i in dates[0]:
+            if i.isdigit():
+                day += i
+        if len(day) != 2:
+            day = "0" + day
+        return res + day
+
+
 if __name__ == '__main__':
 
 
-    node1 = ListNode(1)
-    node2 = ListNode(2)
-    node3 = ListNode(3)
-    node4 = ListNode(4)
-    node5 = ListNode(5)
-    node6 = ListNode(6)
-    node7 = ListNode(7)
-    node8 = ListNode(8)
-    node9 = ListNode(9)
-    node10 = ListNode(10)
+    node1 = ListNode(0)
+    node2 = ListNode(0)
+    node3 = ListNode(1)
+    node4 = ListNode(1)
+    node5 = ListNode(0)
+    node6 = ListNode(1)
+    node7 = ListNode(0)
 
     node1.next = node2
-    node3.next = node4
+    node2.next = node3
     node3.next = node4
     node4.next = node5
     node5.next = node6
     node6.next = node7
-    node7.next = node8
-    node8.next = node9
-    node9.next = node10
+
 
     l2 = ListNode(2)
 
     sol = Solution()
 
-    res = sol.swapNodes3(node1,3)
+    res = sol.getNumber(node1)
+    print(res)
     pass
 
 

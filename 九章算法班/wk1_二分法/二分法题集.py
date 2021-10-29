@@ -60,6 +60,31 @@ class Solution:
 
         return -1
 
+    # Blend面经题 跟领扣14一样的  这是力扣E 278 First Bad Version
+    def firstBadVersion(self, n):
+        """
+        # The isBadVersion API is already defined for you.
+        # @param version, an integer
+        # @return an integer
+        # def isBadVersion(version):
+        """
+        start = 1
+        end = n
+
+        while start + 1 < end:
+            mid = (start + end) // 2
+            if not isBadVersion(mid):
+                start = mid
+            else:
+                end = mid
+
+        if isBadVersion(start):
+            return start
+        if isBadVersion(end):
+            return end
+
+        return -1
+
     # lintcode easy 458 · Last Position of Target
     def lastPosition_wrong_answer(self, nums, target):
         """
@@ -501,5 +526,5 @@ if __name__ == '__main__':
     sol = Solution()
     A = [1,2,3,4]
     m = 3
-    res = sol.findMaximum(A, m )
+    res = sol.binarySearch([1,4,4,5,7,7,8,9,9,10] ,1 )
     print(res)

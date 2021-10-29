@@ -1,6 +1,6 @@
 class Solution:
 
-    # lintcode Easy 479 · Second Max of Array
+    # lintcode Easy 479 · Second Max of Array 用打擂台的方式找出第二大值
     def secondMax(self, nums):
         """用打擂台的方式找出第二大值"""
         maxVal = max(nums[0], nums[1])
@@ -19,8 +19,12 @@ class Solution:
 
         return secVal
 
-    # lintcode Easy 1200 · Relative Ranks
+    # lintcode Easy 1200 · Relative Ranks  hashmap做法
     def findRelativeRanks(self, nums):
+        """
+        Input: [5, 4, 3, 2, 1]
+        Output: ["Gold Medal", "Silver Medal", "Bronze Medal", "4", "5"]
+        """
         # sorted_Score 是用来降序排列的
         sorted_Score = sorted(nums, reverse=True)
         dic = {}
@@ -36,9 +40,9 @@ class Solution:
             else:
                 dic[num] = str(i + 1)
 
-        return [dic[each] for each in nums]
+        return [dic[each] for each in nums] # 直接查找对应
 
-    # lintcode Easy 1200 · Relative Ranks
+    # lintcode Easy 1200 · Relative Ranks  打包成tuple各种排序,有点儿绕
     def findRelativeRanks2(self, nums):
         '''这种是tuple写法，有点绕，感觉没必要但也挺有意思'''
         def rank_to_medal(rank):
@@ -66,7 +70,7 @@ class Solution:
         temp = [dict[i] for i in range(len(nums))]
         return temp
 
-    # lintcode Easy 173 · Insertion Sort List
+    # lintcode Easy 173 · Sort a linked list using insertion sort
     def insertionSortList(self, head):
         """
         思路：
@@ -125,7 +129,7 @@ class Solution:
 
         return res
 
-    # lintcode Medium 49 · Sort Letters by Case 其实就是quick sort一次，我觉得这题算easy。比较牛逼的是解法2
+    # lintcode Medium 49 · Sort Letters by Case 就是利用QuickSort整体有序思想：最后左边都lower，右边都upper
     def sortLetters1(self, chars):
         left = 0
         right = len(chars) - 1
@@ -144,14 +148,43 @@ class Solution:
 
         return chars
 
-    # lintcode Medium 49 · Sort Letters by Case 一句话的解法
+    # lintcode Medium 31 · Partition Array 就是利用QuickSort整体有序思想：左边<k<右边
+    def partitionArray(self, nums, k):
+        """
+        最多扫描一遍数组，时间复杂度为O(n), 空间是O(1)
+        和quicksort里的partition过程性质相似，都是不stable的
+
+        例子
+        nums = [3,2,2,1] k = 2   partition的点是2，让所有小于2的在2左边，大于2的在2右边
+        output 1，因为k=2第一次出现在index=1
+        """
+        left, right = 0, len(nums) - 1
+        while left <= right:
+            while left <= right and nums[left] < k:
+                left += 1
+            while left <= right and nums[right] >= k:
+                right -= 1
+            if left <= right:
+                nums[left], nums[right] = nums[right], nums[left]
+                left += 1
+                right -= 1
+        return left
+
+    # lintcode Medium 49 · Sort Letters by Case 用lambda一句话的解法
     def sortLetters2(self, chars):
         # 出来的结果是小写在前，大写在后  (因为好像默认的在前)
         chars.sort(key=lambda c: c.isupper())
         pass
 
-    # lintcode Medium 532 · Reverse Pairs
+    # lintcode Medium 532 · Reverse Pairs 前数比后数大的有几对
     def reversePairs(self, A):
+        """
+        A reverse order pair： if the previous number is greater than the following number
+        Input:  A = [2, 4, 1, 3, 5]
+        Output: 3
+        Explanation:
+        (2, 1), (4, 1), (4, 3) are reverse pairs
+        """
         self.count = 0
         self.temp = [0] * len(A)
         self.merge_sort(A, 0, len(A) - 1)
@@ -173,12 +206,12 @@ class Solution:
 
         # 这个直接把左/右部分都merge了，看 i_right（当然也可以看 i_left）
         for k in range(size):
-            #    右边要有              左边没有了     右边要小于左边
+            #    右边要有              左边没有了           右边数字要小于左边数字
             if i_right <= right and (i_left > mid or A[i_right] < A[i_left]):
                 # 若 左部分还有
                 if i_left <= mid:
-                    # 这一步是加速的过程，暴力解O(N^2), 这里能加速到 O(NlogN)
-                    self.count = self.count + (mid - i_left + 1)
+                    # 这一步是加速的过程，因为左边剩余的数字，都会大于 A[i_right]
+                    self.count = self.count + (mid - i_left + 1)  # 暴力解O(N^2), 这里能加速到 O(NlogN)
 
                 self.temp[k] = A[i_right]
                 i_right += 1
@@ -190,23 +223,35 @@ class Solution:
         for k in range(size):
             A[left + k] = self.temp[k]
 
-    # lintcode Medium 31 · Partition Array
-    def partitionArray(self, nums, k):
-        """
-        最多扫描一遍数组，时间复杂度为O(n), 空间是O(1)
-        和quicksort里的partition过程性质相似，都是不stable的
-        """
-        left, right = 0, len(nums) - 1
-        while left <= right:
-            while left <= right and nums[left] < k:
-                left += 1
-            while left <= right and nums[right] >= k:
-                right -= 1
-            if left <= right:
-                nums[left], nums[right] = nums[right], nums[left]
-                left += 1
-                right -= 1
-        return left
+    # lintcode Easy 464 · Sort Integers II 就是用quicksort来做的
+    def sortIntegers2(self, A):
+        def quickSort(A, start, end):
+            if start >= end:
+                return
+
+            left, right = start, end
+            # key point 1: pivot is the value, not the index
+            pivot = A[(start + end) // 2];
+
+            # key point 2: every time you compare left & right, it should be
+            # left <= right not left < right
+            while left <= right:
+                while left <= right and A[left] < pivot:
+                    left += 1
+
+                while left <= right and A[right] > pivot:
+                    right -= 1
+
+                if left <= right:
+                    A[left], A[right] = A[right], A[left]
+
+                    left += 1
+                    right -= 1
+
+            quickSort(A, start, right)
+            quickSort(A, left, end)
+
+        quickSort(A, 0, len(A) - 1)
 
     # lintcode Medium 148 · Sort Colors 方法是 counting sort
     def sortColors1(self, nums):
@@ -238,7 +283,7 @@ class Solution:
     def sortColors2(self, nums):
         """
         每次partition是O(n), 这里partition两次，遍历2次，也是O(n)
-        时间复杂度就是O(1)啦，比方法1 好点
+        空间复杂度就是O(1)啦，比方法1 好点
 
         如果面试官还要难为你说只允许遍历1次呢… 那请看方法3
         """
@@ -253,7 +298,7 @@ class Solution:
                 smaller_than_k += 1
                 A[smaller_than_k], A[i] = A[i], A[smaller_than_k]
 
-    # lintcode Medium 148 · Sort Colors
+    # lintcode Medium 148 · Sort Colors  只允许遍历1次
     def sortColors3(self, nums):
         """
         如果只允许遍历1次数组？
@@ -302,30 +347,6 @@ class Solution:
         """
         pass
 
-    # lintcode Easy 464 · Sort Integers II
-    def sortIntegers2(self, A):
-        def quick_sort(A, start, end):
-            if start >= end:
-                return
-
-            mid = (start + end) // 2
-            pivot = A[mid]
-            left = start
-            right = end
-
-            while start <= end:
-                while start <= end and A[left] < pivot:
-                    left += 1
-                while start <= end and pivot < A[right]:
-                    right -= 1
-                while start <= end:
-                    A[left], A[right] = A[right], A[left]
-                    left += 1
-                    right -= 1
-
-            quick_sort(A, start, right)
-            quick_sort(A, start, left)
-
     # lintcode Medium 143 · Sort Colors II
     def sortColorsTwo1(self, colors, k):
         """counting sort 但这版本时间复杂度O(NlogN), 空间复杂度O(k)"""
@@ -350,7 +371,7 @@ class Solution:
 
         colors.sort()
 
-    # lintcode Medium 143 · Sort Colors II
+    # lintcode Medium 143 · Sort Colors II 用角标来做counting sort
     def sortColorsTwo2(self, colors, k):
         """
         counting sort 但这版本时间复杂度O(N), 空间复杂度O(k)
@@ -441,7 +462,7 @@ class Solution:
         self.raibow_sort(colors, start, right, color_from, color_mid)  # 好像 color_mid-1 写成 color_mid 也行
         self.raibow_sort(colors, left, end, color_mid + 1, color_to)
 
-    # lintcode Medium 143 · Sort Colors II  时间O(2)  空间O(1)但没看懂
+    # lintcode Medium 143 · Sort Colors II   空间O(1)但没看懂
     def sortColorsTwo4(self, colors, k):
         """
         题目要求不使用额外的数组，一种方法是使用彩虹排序(rainbow sort)，
@@ -481,135 +502,7 @@ class Solution:
                 i -= 1
             k -= 1
 
-    # lintcode(力扣56) Medium 156 · Merge Intervals
-    def merge1(self, intervals):
-        """
-        时间O(n)  空间O(n)
-        相同思路，更精简写法看 方法3
-        空间复杂度优化到O(1)请看 方法2
-        """
-        if not intervals:
-            return []
-
-        '''
-        先让元素按照元素里的 start 升序排列一下
-        可以看出，当我遍历数组的时候，每次访问一个区间ai，
-        都能保证：如果ai和它前面的区间不相交，
-                那么ai后面的任意区间都不能和ai前面的任意区间相交。
-                这样就保证了时间复杂度为O(n)级别，即不会出现其他的遍历。
-        '''
-        intervals.sort( key=lambda pair: pair.start )
-        # 上面的写法好像是直接在 intervals 上 sort，sort 完后 intervals 是不变的
-        # 若写成这个也行 intervals = sorted(intervals, key=lambda pair: pair.start)
-        #     但sort后的intervals 的地址就跟之前不一样了，是个新的对象了
-
-        last, output = None, []
-        for element in intervals:
-            if not last or last.end < element.start:
-                # 虽然这里把 element append进了output，
-                # 但由于 last = element，后面 在修改 last 时
-                # 相当于修改的是 output 里的 element，因此也会跟着变
-                output.append(element)
-                last = element
-            else:
-                last.end = max(last.end, element.end)
-
-        return output
-
-    # lintcode(力扣56) Medium 156 · Merge Intervals
-    def merge2(self, intervals):
-        """ 时间O(n) 空间O(1) """
-        if not intervals:
-            return intervals
-
-        intervals.sort(key=lambda x: x.start)
-        for i in range(len(intervals)):
-            #                                   如果有区间重合
-            if i < len(intervals) - 1 and intervals[i].end >= intervals[i + 1].start:
-                # 把 intervals[i + 1] 的区间变得更广阔了
-                intervals[i + 1].start = intervals[i].start
-                intervals[i + 1].end = max(intervals[i].end, intervals[i + 1].end)
-                # 而 intervals[i] 不要了
-                intervals[i] = None
-
-        # 踢掉 None 的元素
-        intervals[:] = [item for item in intervals if item]
-
-        return intervals
-
-    # 力扣56 Medium 156 · Merge Intervals
-    def merge3(self, intervals):
-
-        intervals.sort(key=lambda x: x[0])
-
-        merged = []
-        for interval in intervals:
-            # if the list of merged intervals is empty or if the current
-            # interval does not overlap with the previous, simply append it.
-            if not merged or merged[-1][1] < interval[0]:
-                merged.append(interval)
-            else:
-            # otherwise, there is overlap, so we merge the current and previous
-            # intervals.
-                merged[-1][1] = max(merged[-1][1], interval[1])
-
-        return merged
-
-    # lintcode(力扣179) Medium 184 · Largest Number
-    def largestNumber1(self, array):
-        """3种方法都思路都一样，就是写法不同"""
-        string = []
-        # 把整型转换成字符串
-        for i in array:
-            string.append(str(i))
-        # 按最优策略排序， compare的方法是自己写的（比较相连后的字符串谁更大）
-        import functools
-        string.sort(key=functools.cmp_to_key(self.compare))
-
-        res = ''.join(string)
-        return '0' if res[0] == '0' else res
-    def compare(self, a, b):
-        if a + b > b + a:
-            return -1
-        return 1
-
-    # lintcode(力扣179) Medium 184 · Largest Number
-    def largestNumber2(self, nums):
-        from functools import cmp_to_key
-        nums.sort(key=cmp_to_key(lambda x, y: 1 if str(x)+str(y) < str(y)+str(x) else -1))
-        if nums[0] == 0:
-            return '0'
-        return "".join([str(x) for x in nums])
-
-    # lintcode(力扣179) Medium 184 · Largest Number
-    def largestNumber3(self, nums):
-        """
-        这个的思路是，好像要俩俩前后相连比较一下
-        比如 3 和 30，要 330 和 303 比较一下
-
-        没有看懂key那里
-
-        来分析下复杂度
-        【时间】 Although we are doing extra work in our comparator,
-        it is only by a constant factor.
-        Therefore, the overall runtime is dominated by the
-        complexity of sort, which is O(NlogN) in Python and Java.
-        【空间】 we allocate O(n) additional space to store 排序后的列表和连结后的string
-        """
-        map(str, nums).sort(key = LargerNumKey)
-
-        # Once the array is sorted, the most "signficant" number will be at the front
-        l = sorted(map(str, nums), key = LargerNumKey)
-        res = ''.join(l)
-
-        # There is a minor edge case that comes up
-        # when the array consists of only zeroes,
-        # so if the most significant number is 00,
-        # we can simply return 00.
-        # Otherwise, we build a string out of the sorted array and return it.
-        return '0' if res[0] == '0' else res
-
-    # lintcode Medium 139 · Subarray Sum Closest
+    # lintcode Medium 139 · Subarray Sum Closest, Given an integer array, find a subarray with sum closest to zero.
     def subarraySumClosest1(self, nums):
         """我这个解法超时了，O(n^2)"""
         dic = {-1: 0}
@@ -637,39 +530,6 @@ class Solution:
 
         return min_range
 
-    # lintcode Medium 139 · Subarray Sum Closest
-    def subarraySumClosest2(self, nums):
-        """
-        这是令狐冲版本思路是：
-        先对数组求一遍前缀和，然后把前缀和排序
-        题目要求子数组的和最接近0，也就是排序后的数组两个值相减最接近0
-        排完序后，我们只要找相邻元素做差就好了
-
-        前缀和预处理O(N)
-        排序O(NlogN)
-        相邻元素做差O(N)
-        最终复杂度O(NlogN)
-        """
-        # 用list里的元素打包成元组来搜索
-        # 这样一会儿就可以对 元组 进行sort
-        # 把 list 里的元组 排列成 有序的（如果是字典的话，字典是无序的，没法儿排）
-        prefix_sum = [(0, -1)]
-        for i, num in enumerate(nums):
-            prefix_sum.append((prefix_sum[-1][0] + num, i))
-
-        # 这种sort好像就是默认以元组的第一个元素sort，小的在前
-        prefix_sum.sort()
-        closest, answer = float('inf'), []
-
-        for i in range(1, len(prefix_sum)):
-            difference = abs( prefix_sum[i][0] - prefix_sum[i - 1][0] )
-            if closest > difference:
-                closest = difference
-                left = min(prefix_sum[i - 1][1], prefix_sum[i][1]) + 1
-                right = max(prefix_sum[i - 1][1], prefix_sum[i][1])
-                answer = [left, right]
-
-        return answer
 
     # lintcode(力扣148) Medium 98 · Sort List 二分法处理 linkedlist
     def sortList1(self, head):
@@ -858,54 +718,7 @@ class Solution:
 
         return count
 
-    # lintcode Medium 5 · Kth Largest Element  可以写个例子跟着走一遍
-    def kthLargestElement(self, k, A):
-        """
-        最容易想到的是直接排序，返回第k大的值。时间复杂度是O(nlogn)
-
-        而这是 O(n) 的做法
-        这题其实是快速排序算法的变体，
-        通过快速排序算法的partition步骤，
-        可以将小于等于pivot的值划分到pivot左边，
-        大于等于pivot的值划分到pivot右边
-        从而缩小范围继续找第k大的值(k要么在pivot左边或右边), 每次只在一半范围内查找，另一半不用查找
-
-        平均 时间复杂度O(n) 因为 T(n) = T(n / 2) + O(n) 算出来是O(n)
-        空间复杂度 O(1)
-        """
-        if not A or k < 1 or k > len(A):
-            return None
-        # 为了方便编写代码，这里将第 k 大转换成第 [len(A) - k] 小问题。
-        return self.partition(A, 0, len(A) - 1, len(A) - k)
-    def partition(self, nums, start, end, k):
-        if start == end:
-            # 说明找到了
-            return nums[k]   # 也可以 return nums[start]
-
-        left, right = start, end
-        pivot = nums[(start + end) // 2]
-        while left <= right:
-            while left <= right and nums[left] < pivot:
-                left += 1
-            while left <= right and nums[right] > pivot:
-                right -= 1
-            if left <= right:
-                nums[left], nums[right] = nums[right], nums[left]
-                left, right = left + 1, right - 1
-
-        # 情况1
-        if k <= right:
-            # pivot 左区间都小于等于 pivot
-            return self.partition(nums, start, right, k)
-        # 情况2
-        if k >= left:
-            # pivot 右区间都大于等于 pivot
-            return self.partition(nums, left, end, k)
-
-        # 情况3: right 和 left 中间隔了一个数，这个数就刚好是我们要找的数
-        return nums[k]  # 也可以 return nums[right+1] 或 nums[left-1]
-
-    # lintcode easy 80 · Median 领扣第5题的变形
+    # lintcode easy 80 · Median of an unsorted array 是Kth Smallest Numbers变形
     def median(self, nums):
         if not nums:
             return None
@@ -933,13 +746,14 @@ class Solution:
 
         return nums[right + 1]
 
-    # lintcode Medium 606 · Kth Largest Element II
+    # lintcode Medium 606 · Kth Largest Element in an unsorted array 这是2行heap解法
     def kthLargestElementTwo1(self, nums, k):
         # heap 简单解法 主要利用heap.nlargest取最大的K个数，最后的结果是在heap.nlargest最后的一个数。
-        import heapq
-        return heapq.nlargest(k,nums).pop()
+        import heapq                  # 比如输入是 1 2 3 4 5，k=3
+        temp = heapq.nlargest(k,nums) # temp = [5,4,3]
+        return temp.pop()             # 会pop出3   这是list只能pop出3，没有popleft
 
-    # lintcode Medium 606 · Kth Largest Element II
+    # lintcode Medium 606 · Kth Largest Element in an unsorted array 这是另一个heap其做法
     def kthLargestElement2(self, nums, k):
         """
         这题没看，先记录一下
@@ -963,12 +777,12 @@ class Solution:
         return ans
 
     # lintcode(力扣853) Medium 1477 · Car Fleet
-    def carFleet(self, destination, position, speed):
+    def carFleet(self, target: int, position: "List[int]", speed: "List[int]") -> int:
         # 把车按照位置从 前 -> 后 (就是position从大到小排序)
         # zip(*iterables) 是 return an iterator of tuples
         tuple_position_speed = sorted(zip(position, speed), reverse=True)
         # 计算出每个车在无阻拦的情况下到达终点的时间
-        time = [float(destination - p) / s for (p, s) in tuple_position_speed]
+        time = [float(target - p) / s for (p, s) in tuple_position_speed]
         # 如果后面的车到达 destination 所用的时间比前面车小，那么说明后车应该比前面的车先到
         #
         # 但是由于后车不能超过前车，所以这种情况下就会合并成一个车队，也就是说后车“消失了”。
@@ -990,17 +804,47 @@ class Solution:
         return count
 
 
-class LargerNumKey(str):
-    """
-    custom comparator preserves transitivit
-    + 是字符串连接符
 
-    如果 a + b > b +c
-    和 b + c > c + b
-    那么 a + c > c + a
-    """
-    def __lt__(x, y):
-        return x+y > y+x
+    # Blend VO题 力扣 56 Merge Intervals 令狐冲写法，不错，很清晰！
+    def merge(self, intervals): #  intervals: List[List[int]]
+        intervals.sort()
+        result = []
+        for interval in intervals:
+            start = interval[0]
+            end = interval[1]
+            #                      last_end = result[-1][1]
+            if len(result) == 0 or result[-1][1] < start:  # 易错点：这个地方的条件其实很不容易想透彻
+                # 这种情况不会相交
+                result.append(interval)
+            else:
+                # 我们只要改变 last_end 就好了，last_start是不用改变的，因为 last_start一定小于等于 start, 因为之前sort过了
+                result[-1][1] = max(result[-1][1], end)
+
+        return result
+
+    # Blend VO题 力扣M 57 Insert Interval 令狐冲写法，巧妙利用插入list某个位置元素，这样写出来就比较简单
+    def insert(self, intervals, newInterval): # List[List[int]], List[int]
+        results = []
+        insertPos = 0
+
+        new_start = newInterval[0]
+        new_end = newInterval[1]
+
+        for interval in intervals:
+            internal_start = interval[0]
+            internal_end = interval[1]
+
+            if internal_end < new_start:
+                results.append(interval)
+                insertPos += 1
+            elif internal_start > new_end:
+                results.append(interval)
+            else:
+                new_start = min(internal_start, new_start)
+                new_end = max(internal_end, new_end)
+                #                                            List = [1, 2, 3]
+        results.insert(insertPos, [new_start, new_end])   #  List.insert(1, 0)  # 插入之后是 [1, 0, 2, 3]
+        return results
 
 class Interval(object):
     def __init__(self, start, end):
@@ -1029,23 +873,27 @@ def largestNumber_wrong(nums):
 
 if __name__ == '__main__':
     sol = Solution()
-    node1 = ListNode(3)
-    node2 = ListNode(1)
-    node3 = ListNode(6)
-    node4 = ListNode(4)
-    node5 = ListNode(5)
-    node6 = ListNode(2)
-    node7 = ListNode(9)
-    node8 = ListNode(0)
-    node9 = ListNode(10)
-    node1.next = node2
-    node2.next = node3
-    node3.next = node4
-    node4.next = node5
-    node5.next = node6
-    node6.next = node7
-    node7.next = node8
-    node8.next = node9
-    l = sol.sortList_iterative(node1)
+    pass
+    res = sol.kthLargestElementTwo1([1,2,3,4,5],3)
+    print(res)
+
+    # node1 = ListNode(3)
+    # node2 = ListNode(1)
+    # node3 = ListNode(6)
+    # node4 = ListNode(4)
+    # node5 = ListNode(5)
+    # node6 = ListNode(2)
+    # node7 = ListNode(9)
+    # node8 = ListNode(0)
+    # node9 = ListNode(10)
+    # node1.next = node2
+    # node2.next = node3
+    # node3.next = node4
+    # node4.next = node5
+    # node5.next = node6
+    # node6.next = node7
+    # node7.next = node8
+    # node8.next = node9
+    # l = sol.sortList_iterative(node1)
     print(l)
     pass

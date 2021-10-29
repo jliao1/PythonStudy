@@ -68,6 +68,8 @@ class bfsTree:
             result.append(level)
         return result
 
+
+
     # 单队列写BFS(第二种写法) lintcode easy 69 · Binary Tree Level Order Traversal
     def levelOrder2(self, root):
         if not root:
@@ -432,47 +434,52 @@ class Solution:  # 令狐冲讲课例题
 
         return nodes_indegree
 
-    # 领扣 M 616 · Course Schedule II 是否存在拓扑排序, 存在的话就输出
+    # 领扣 M 616(力扣207，210) Course Schedule 是否存在拓扑排序, 存在的话就返回这个排序
     def findOrder(self, numCourses, prerequisites):
         """
         time/space complexity : O(V+E)
         """
-        from collections import deque
+        # [course, prerequisite]
+
         # step 1: 把先修课抽象成graph，建立graph和算出 in-degree
-        graph, in_degree = self.build_graph892(numCourses, prerequisites)
-        # step 2: bfs
-        start_nodes = [course for course in in_degree if in_degree[course] == 0]
-        queue = deque(start_nodes)
+        course_map, in_degree = self.build210(numCourses, prerequisites)
+        from collections import deque
+
+        # step 2: bfs  从in_degree为0的点开始
+        start_courses = [course for course in in_degree if in_degree[course] == 0]
+        queue = deque(start_courses)
         topo_order = []
 
         while queue:
             course = queue.popleft()
             topo_order.append(course)
 
-            for next_course in graph[course]:
+            for next_course in course_map[course]:
                 in_degree[next_course] -= 1
                 if in_degree[next_course] == 0:
                     queue.append(next_course)
 
-        # 判断graph 有没有cycle：len(topo_order) == number_of_vertices
-        if (len(topo_order) == numCourses):
-            return topo_order
+        # check if has cycle: if has cycle, return empty because no topological order
+        if len(topo_order) != numCourses:
+            return []
 
-        return []
-    def build_graph(self, numCourses, prerequisites):
+        return topo_order
+    def build210(self, numCourses, prerequisites):
         # 建图
-        graph = {i: set() for i in range(numCourses)}
-        for course, prerequisite in prerequisites:
-            graph[prerequisite].add(course)
-
-        # 算图里每个点的 in_degree (易错点，算入度跟建图分开搞，不要掺和在一个for循环里搞，因为有可能会有重复计算比如 [9,1] [9,1] 导致9的入度是2，但实际上只是1)
+        course_map = {}  # 怎么存的呢？ key = prere, value = courses set
+        # (1) set all course
+        for i in range(numCourses):
+            course_map[i] = set()
+        # (2) add courses to prerequites
+        for course, prere in prerequisites:
+            course_map[prere].add(course)
+        # (3) count in-degree
         in_degree = {i: 0 for i in range(numCourses)}
-        for vertext in graph:
-            hash_set = graph[vertext]
-            for s in hash_set:
-                in_degree[s] += 1
+        for prerequisites, courses in course_map.items():
+            for course in courses:
+                in_degree[course] += 1
 
-        return graph, in_degree
+        return course_map, in_degree
 
     # 领扣 M 605 · Sequence Reconstruction 总体上是 判断是否只存在唯一topological sort
     def sequenceReconstruction(self, org, seqs):
@@ -601,91 +608,12 @@ class Solution:  # 令狐冲讲课例题
                 indegrees[c] += 1
         return indegrees
 
-    # 领扣 M 788 · The Maze II 复杂图的最短路径，用 SPFA 来解决的（就是在简单图的BFS上作变形）
-    def shortestDistance1(self, maze, start, destination) -> int:
-        """
-        1.就着example把跟着代码走一遍，好难啊
-        2.除了层级，还要顾到走了多少步. 所以这不是一个简单图！！！不能用层级来算步数！！
-        3.edges的weight不一样，算是复杂图，用 SPFA 解法
-            把所有 nodes 的 step 设置为 无限大
-            除非遇到 node 的 step 更小了，再更新这个 node 的 step
-            （SPFA解决不了edge weight是负数的那种）
-
-        """
-        from collections import deque
-
-        # 把 start 和 destination 变成 tuple
-        start = tuple(start)
-        destination = tuple(destination)
-
-        # initialize all possible spaces' steps as infinite
-        steps = self.initialize_posible_spaces_infinite(maze)
-
-        # 开始 BFS
-        queue = deque([start])
-        steps[start] = 0  # 起点的step设为0
-
-        while queue:
-            current_node = queue.popleft()
-
-            # 返回的 next_nodes 是个字典的数据结构
-            next_nodes_new_step = self.to_next_nodes_steps(maze, current_node, steps[current_node])
-
-            for next_node in next_nodes_new_step:
-                # 如果 原来的 next_node 的 step 已经小于等于 new step了，就跳过，处理这个点
-                if steps[next_node] <= next_nodes_new_step[next_node]:
-                    continue
-
-                # 发现 new node 的 new step 比原来 step 更小，再处理
-                steps[next_node] = next_nodes_new_step[next_node]
-                queue.append(next_node)
-
-        if steps[destination] == float('inf'):
-            return -1
-        else:
-            return steps[destination]
-    def initialize_posible_spaces_infinite(self, maze):
-        steps = {}
-        for x in range(len(maze)):
-            for y in range(len(maze[0])):
-                if maze[x][y] == 0:
-                    steps[(x, y)] = float('inf')
-        return steps
-    def to_next_nodes_steps(self, maze, this_node, pre_steps):
-        next_nodes = {}
-        x, y = this_node
-        DIRECTIONS = [(1, 0), (-1, 0), (0, 1), (0, -1)]
-
-        for dx, dy in DIRECTIONS:
-            next_x = x
-            next_y = y
-            count_steps = 0
-
-            while self.is_valid2(next_x + dx, next_y + dy, maze):  # 这里加一个在不在dict里的检查
-                next_x += dx
-                next_y += dy
-                count_steps += 1
-
-            if count_steps > 0:
-                next_nodes[(next_x, next_y)] = pre_steps + count_steps
-
-        return next_nodes
-    def is_valid2(self, x, y, maze):
-        # 没有撞墙也没有走出地图就是 valid
-        if not (0 <= x < len(maze) and 0 <= y < len(maze[0])):
-            return False
-
-        if maze[x][y] == 1:
-            return False
-
-        return True
-
-    # 领扣 M 788 · The Maze II 复杂图的最短路径，把二维复杂图 转化成三纬 简单图（做BFS解决的） 这个写法比法1简单，但可能比较抽象
+    # 力扣 M 505 The Maze II 重量图的最短路径，把二维转化成三纬平面用简单图BFS方法来解决 （但用dijkstra做更好理解，可以去看 dijkstra文件里 有这题） 感觉BFS最难也不过如此
     def shortestDistance2(self, maze, start, destination) -> int:
         """时间复杂度是O(mn) 至少chris是这么说的，因为每个点会visit 5次(有5个directons)"""
         from collections import deque
         #               U       R      D      L
-        DIRECTIONS = [(0, -1), (1, 0), (0, 1), (-1, 0)] # 其实除了4个明确方向，还有1个 None （就是需要重新选择方向的状态）
+        DIRECTIONS = [(0, -1), (1, 0), (0, 1), (-1, 0)] # 其实除了4个明确方向，还有1个 None （就停下需要重新选择方向的状态）
 
         # make "start" and "destination" as tuple cuz they are list at the beigining
         start = (start[0], start[1], None)

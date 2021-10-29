@@ -476,45 +476,47 @@ class Solution:
             cur.left = target.left
         return cur
 
-    # Lintcode hard 87 · Remove Node in Binary Search Tree 很棒的分治法思路！！也是解这题最简单的方法
-    def removeNode3(self, root, value):
+    # Lintcode hard 87 · Remove Node in Binary Search Tree 从BST中删除target 很棒的分治法思路！！也是解这题最简单的方法
+    def removeNode3(self, root, target):
         """
         这个方法3其实比方法1和2更简练些
         recursion去找要删除的node，找到后直接进行删除操作，再返回连接上原parent
         O(h) time, O(h) space, h: height of tree
         """
         # null case
-        if root is None:
+        if not root:
             return root
 
-        # check if node to delete is in left/right subtree
-        if value < root.val:
-            root.left = self.removeNode3(root.left, value)
-        elif value > root.val:
-            root.right = self.removeNode3(root.right, value)
-        else:  # 说明 root.val == value 找到了！就开始做删除root的操作了！
-            # if root is has 2 children
+        if target > root.val:  # go right
+            # 不删除的时候，root.right要=，要连上
+            root.right = self.removeNode3(root.right, target)
+        elif target < root.val:  # go left
+            # 不删除的时候，root.left要=，要连上
+            root.left = self.removeNode3(root.left, target)
+        else:
+            # Find the node we want to delete!!!
+            # (1) if the node has 2 children
             if root.left and root.right:
-                left_max = self.find_Max_of_left_tree(root)
-                # 把 left_max.val 的值 给 root.val 的位置
-                root.val = left_max.val
-                # 然后从 root 的 left tree 进入去删掉 这个 left_max
-                root.left = self.removeNode3(root.left, left_max.val)
-            # if root has only one child
+                left_max_node = self.find_max_in_left_tree(root)
+                root.val = left_max_node.val
+                root.left = self.removeNode3(root.left, left_max_node.val)
+
+            # (2) if the node has 1 child
             elif root.left:
                 root = root.left
+
             elif root.right:
                 root = root.right
-            # if root has no child, it's leaf node
+
+            # (3) if the node has no child (it's a left)
             else:
                 root = None
 
         return root
+
     # find max node in left subtree of root，就是找删除target的 inorder_predecessor
-    def find_Max_of_left_tree(self, target):
-        # 反正target也有2个孩子，向左移动1次
-        node = target.left
-        # 然后go right as possible
+    def find_max_in_left_tree(self, root):
+        node = root.left
         while node.right:
             node = node.right
         return node
@@ -551,8 +553,8 @@ class Solution:
         node.right = self.build_tree_from_inorder_traversal(mid + 1, r)
         return node
 
-    # Lintcode(力扣669) Medium 701 · Trim a Binary Search Tree 分治法思路！
-    def trimBST(self, root, minimum, maximum):
+    # Lintcode(力扣669) M 701 · Trim a Binary Search Tree 把BST上不在low~high区间范围内的node删掉分治法思路！
+    def trimBST(self, root, low, high):
         """
         时间O(n)因为在最坏情况下会visit evry node once time，好的情况下可以直接仍掉某一拖子树不需要访问就可以小于O(n)
         空间复杂度O(h)
@@ -562,20 +564,19 @@ class Solution:
 
         curr_val = root.val
 
-        if curr_val < minimum:
+        if curr_val < low:
             # 情况1: root node 要删掉的，它的左子树也不用看了，只往它右子树看
-            root = self.trimBST(root.right, minimum, maximum)
-        elif maximum < curr_val:
+            root = self.trimBST(root.right, low, high)
+        elif high < curr_val:
             # 情况2: root node 要删掉的，它的右子树也不用看了，只往它左子树看
-            root = self.trimBST(root.left, minimum, maximum)
+            root = self.trimBST(root.left, low, high)
         else:
             # 情况3: minimum ≤ curr_val ≤ maximum
             # root node 要保留，它左右子树都要看一下
-            root.left = self.trimBST(root.left, minimum, root.val)
-            root.right = self.trimBST(root.right, root.val, maximum)
+            root.left = self.trimBST(root.left, low, curr_val)    # 也可以写成  root.left = self.trimBST(root.left, low, high)
+            root.right = self.trimBST(root.right, curr_val, high) # 也可以写成  root.left = self.trimBST(root.left, low, high)
 
         return root
-
 
 def build_tree():
     node_1 = TreeNode(5)
@@ -604,11 +605,24 @@ def build_tree():
     return node_1
 
 if __name__ == '__main__':
+    node_1 = TreeNode(5)
+    node_2 = TreeNode(3)
+    node_3 = TreeNode(6)
+    node_4 = TreeNode(2)
+    node_5 = TreeNode(4)
+    node_6 = TreeNode(7)
+
+    node_1.left = node_2
+    node_1.right = node_3
+    node_2.left = node_4
+    node_2.right = node_5
+    node_3.right = node_6
 
     root = build_tree()
     array = [0,1,2,3,4]
+
     sol = Solution()
-    res = sol.sortedArrayToBST1(array)
+    res = sol.deleteNode(node_1, 3)
     print(sol.cnt)
 
 

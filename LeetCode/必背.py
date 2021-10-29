@@ -114,43 +114,21 @@ string类型的是不能sort的，list可以
 import heapq
 
 if __name__ == '__main__':
-    l = [1,2,3,4]
-    li=iter(l)
-    print(len(li))
-    print(next(li))
-    print(next(li))
-    print(len(li))
-    print(next(li))
-    print(next(li))
-    print(next(li))
-    print(next(li))
+    """
+    【String Split】
+    好像string的slice时间复杂度是O(n)
+    两种方法分割python多空格字符串
+    str = " aa   bbbbb         ccc  d"
 
-    import heapq
+    这种不行：
+    str_list2 = str.split(' ')
+    print(str_list2)  # 打印出来是 ['', 'aa', '', '', 'bbbbb', '', '', '', '', '', '', '', '', 'ccc', '', 'd']
 
-    classes = [[1,2],[3,5],[2,2]]
+    这种可以：
+    str_list1 = str.split()
+    print(str_list1)  # 打印出来是 ['aa', 'bbbbb', 'ccc', 'd']
+    """
 
-    ratios = [(c[0] / c[1], c) for c in classes]
-    heapq.heapify(ratios)
-
-    for _ in range(2):
-        c = heapq.heappop(ratios)
-        passes = c[1][0] + 1
-        total = c[1][1] + 1
-
-        heapq.heappush(ratios, (passes / total, [passes, total]))
-
-    s = 0
-    for c in ratios:
-        s += c[0]
-
-
-    minHeap = []
-    minHeap.append([1, 5])
-    minHeap.append([1, 1])
-    minHeap.append([1, 2])
-    minHeap.append([1, 4])
-    minHeap.append([1, 3])
-    heapq.heapify(minHeap)
-    while len(minHeap) != 0:
-        print(heapq.heappop(minHeap))
-    pass
+    s = '1b3'
+    a = s.isdigit()
+    print(a)

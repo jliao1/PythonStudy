@@ -46,7 +46,7 @@ class Solution:
 
         return dic
 
-    # lintcode Easy 138 · Subarray Sum 简单的前缀和
+    # lintcode Easy 138 · Subarray Sum 简单的前缀和:在array里找sub的sum等于0，返回sub的起始index和停止index，如果有多对的话，返回任意一对
     def subarraySum(self, nums):
         # write your code here
         if not nums:
@@ -63,6 +63,129 @@ class Solution:
             dic[Sum] = i
 
         return [-1, -1]
+
+    # lintcode medium 1457 · Search Subarray 前缀和 在array里找sub的sum等于k，返回sub的长度，如果有多对的话，返回minimum ending point那对的长度
+    def searchSubarray1(self, arr, k):
+        """
+        为什么能想到前缀和？因为有几个关键词哈，continuous，sum，sub_string
+        暴力方法是，第一个 for 循环里 start指针里套一个for循环找end指针，里面再套一个for循环求start～end的和，但这种都O(n^3)
+        前缀之和的方法时间复杂度O(n)
+        """
+        # initializing
+        index = -1
+        prefix_sum = 0
+        dic = {prefix_sum: index} # 为什么要初始化成 0：-1   -1是用来处理edge case的，比如第一个就是k的情况
+
+        for curr in arr:
+            index += 1
+            prefix_sum = curr + prefix_sum
+
+            target = prefix_sum - k  # 因为 prefix_sum - target = k
+            if target in dic:   # 如果存在的话，就直接返回，因为这题是返回the minimum ending position，所以再往后不用看的其实
+                return index - dic[target]
+
+            if prefix_sum not in dic:    # 如果存在的话，也不更新，因为这道题是返回 minimum starting position
+                dic[prefix_sum] = index  # 记住第一个出现前缀和的idx就好，以后不更新了
+
+        return -1  # 没找到返回-1
+
+    # lintcode medium 1457 · Search Subarray 前缀和 方法1更简单点。这方法2是把所有sub的index范围都找出来了，更慢些
+    def searchSubarray2(self, nums, k):
+        # Write your code here
+        d = {0: [-1]}  # 在-1的位置，和算是0
+        prefix_sum = 0
+        sub_from_to = []
+
+        for i, num in enumerate(nums):
+            prefix_sum += num
+            target = prefix_sum - k
+            if target in d:
+                for index in d[target]:
+                    sub_from_to.append((index + 1, i))
+
+            d.setdefault(prefix_sum, [])
+            d[prefix_sum].append(i)
+        if sub_from_to:
+            sub_from_to.sort(key =lambda x: x[1])
+            return sub_from_to[0][1] - sub_from_to[0][0] +1
+        else:
+            return -1
+
+    # 力扣506M Subarray Sum Equals K 在array里求有多少对sub array和是k。这个方法是把所有对inexd范围都找出来，求个len
+    def subarraySum1(self, nums: "List[int]", k: int) -> int:
+        """
+        [1,2,1,3] and k = 3  有3对
+
+        [1,-1,0] k=0 有3对
+        """
+
+        d = {0: [-1]}  # 在-1的位置，和算是0
+        prefix_sum = 0
+        sub_from_to = []
+
+        for i, num in enumerate(nums):
+            prefix_sum += num
+            target = prefix_sum - k
+            if target in d:
+                for index in d[target]:
+                    sub_from_to.append((index + 1, i))
+
+            d.setdefault(prefix_sum, [])
+            d[prefix_sum].append(i)
+
+        return len(sub_from_to)
+
+    # 力扣M 560 Subarray Sum Equals K 前缀和(prefix sum) + hashmap，方法2更简洁，没求具体sub的index，直接算个数
+    def subarraySum2(self, nums: "List[int]", k: int) -> int:
+        count = 0
+
+        d = {0: [-1]}  # -1位的prefix等于0
+        prefix_sum = 0
+
+        for i, num in enumerate(nums):
+            prefix_sum += num
+            target = prefix_sum - k
+            if target in d:
+                count += len(d[target])
+
+            d.setdefault(prefix_sum, [])
+            d[prefix_sum].append(i)
+
+        return count
+
+    # lintcode Medium 139 · Subarray Sum Closest 前缀和+sort  找出array里某个sub最接近0，返回这个sub的index
+    def subarraySumClosest2(self, nums):
+        """
+        这是令狐冲版本思路是：
+        先对数组求一遍前缀和，然后把前缀和排序
+        题目要求子数组的和最接近0，也就是排序后的数组两个值相减最接近0
+        排完序后，我们只要找相邻元素做差就好了
+
+        前缀和预处理O(N)
+        排序O(NlogN)
+        相邻元素做差O(N)
+        最终复杂度O(NlogN)
+        """
+        # 用list里的元素打包成元组来搜索
+        # 这样一会儿就可以对 元组 进行sort
+        # 把 list 里的元组 排列成 有序的（如果是字典的话，字典是无序的，没法儿排）
+        prefix_sum = [(0, -1)]  # 第一个元素是前缀和，第二个元素是 index
+        for i, num in enumerate(nums):
+            prefix_sum.append((prefix_sum[-1][0] + num, i))
+
+        # 这种sort好像就是默认以元组的第一个元素sort，小的在前
+        prefix_sum.sort()
+        closest, answer = float('inf'), []
+
+        for i in range(1, len(prefix_sum)):
+            difference = abs( prefix_sum[i][0] - prefix_sum[i - 1][0] )
+            if closest > difference:
+                closest = difference
+                left = min(prefix_sum[i - 1][1], prefix_sum[i][1]) + 1
+                right = max(prefix_sum[i - 1][1], prefix_sum[i][1])
+                answer = [left, right]
+
+        return answer
 
     # lintcode(力扣246) Easy 1789 · Distinguish Username
     def DistinguishUsername(self, names):
@@ -93,30 +216,7 @@ class Solution:
         #无解的情况
         return -1, -1
 
-    # lintcode medium 1457 · Search Subarray
-    def searchSubarray(self, arr, k):
-        """
-        为什么能想到前缀和？因为有几个关键词哈，continuous，sum，sub_string
-        暴力方法是，第一个 for 循环里 start指针里套一个for循环找end指针，里面再套一个for循环求start～end的和，但这种都O(n^3)
-        前缀之和的方法时间复杂度O(n)
-        """
-        # initializing
-        index = -1
-        prefix_sum = 0
-        dic = {prefix_sum: index} # 为什么要初始化成 0：-1   -1是用来处理edge case的，比如第一个就是k的情况
 
-        for curr in arr:
-            index += 1
-            prefix_sum = curr + prefix_sum
-
-            target = prefix_sum - k  # 因为 prefix_sum - target = k
-            if target in dic:   # 如果存在的话，就直接返回，因为这题是返回the minimum ending position，所以再往后不用看的其实
-                return index - dic[target]
-
-            if prefix_sum not in dic:    # 如果存在的话，也不更新，因为这道题是返回 minimum starting position
-                dic[prefix_sum] = index  # 记住第一个出现前缀和的idx就好，以后不更新了
-
-        return -1  # 没找到返回-1
 
     # lintcode medium 1035 · Rabbits in Forest
     def numRabbits(self, answers):
@@ -321,6 +421,6 @@ class Solution:
 if __name__ == '__main__':
 
     sol = Solution()
-    l = sol.longestConsecutive2([1,2,0,1])
+    l = sol.searchSubarray2([3,5,7,10,2],12)
     print(l)
     pass

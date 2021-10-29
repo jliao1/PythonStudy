@@ -76,8 +76,27 @@ class Solution:
 
         return root_sum, current_min_sum, root
 
-    # 领扣 E 474 · Lowest Common Ancestor II 哈希表做法。这道题是 LCA 有简称的题目都是经典题，面试官很可能重新面你的那种！！！
-    def lowestCommonAncestorII1(self, root, A, B):
+    #亚麻internVo题 力扣E 235 Lowest Common Ancestor of a Binary Search Tree
+    def lowestCommonAncestor(self, root: 'TreeNode', p: 'TreeNode', q: 'TreeNode') -> 'TreeNode':
+        """
+        利用BST性质高效剪枝
+        时间复杂度：O(N)，其中 N 为 BST 中节点的个数。在最坏的情况下，BST退化成链表，我们可能访问 BST 中所有的节点。
+        空间复杂度：O(N)，其中 N 为 BST 中节点的个数。所需开辟的额外空间主要是递归栈产生的，在最坏的情况下，BST退化成链表，那么递归栈的深度就是BST的节点数目。
+        """
+        # root 等于 p或q
+        if root == p or root == q:
+            return root
+        # p, q 都在左子树
+        if p.val < root.val and q.val < root.val:
+            return self.lowestCommonAncestor(root.left, p, q)
+        # p, q 都在右子树
+        if p.val > root.val and q.val > root.val:
+            return self.lowestCommonAncestor(root.right, p, q)
+        # p, q 分别在左右子树，那么root即为LCA  这一点要结合力扣236解法1来想
+        return root
+
+    # 领扣E474(力扣M1650) (LCA) Lowest Common Ancestor of a Binary Tree 这题是有父指针的  哈希表做法
+    def lowestCommonAncestorI1(self, root, A, B):
         """
         视频讲解在 01:06:00 - 01:09:35
         思路是A和B两个节点一路往父亲节点走
@@ -104,8 +123,8 @@ class Solution:
 
         return None
 
-    # 领扣 E 474 · Lowest Common Ancestor II  List 做法
-    def lowestCommonAncestorII2(self, root, A, B):
+    # 领扣E474(力扣M1650) (LCA) Lowest Common Ancestor of a Binary Tree 这题是有父指针的  List 做法
+    def lowestCommonAncestorI2(self, root, A, B):
         """
         如果不能用 hashset，只能用 list该怎么做？ 视频讲解在 01:06:00 - 01:12:25
 
@@ -138,8 +157,8 @@ class Solution:
 
         return res
 
-    # 领扣 E 474 · Lowest Common Ancestor II 如果不能用parent指针，分治法该怎么做   这个方法太几把饶头了
-    def lowestCommonAncestorII3(self, root, A, B):
+    # 力扣M 236 Lowest Common Ancestor of a Binary Tree 没父指针，A和B保证出现在tree里，分治法该怎么做？   这个方法太几把饶头了.可以看方法2
+    def lowestCommonAncestorII1(self, root, A, B):
         """
         如果没有 parent 指针该怎么做？ 这道题的前提，是确保了 A 和 B 都在树里
         分治法做  视频讲解 01:18:05 - 01:28:00
@@ -163,10 +182,9 @@ class Solution:
         if root is None:
             return None
 
-        # case1：特殊情况 A 或 B刚好在根节点
-        # 那么这个跟节点就是LCA该return  #    A         B
-        if root == A or root == B:   #   / \       / \
-            return root              #  B null   null A
+        # case1：特殊情况 A 或 B刚好在根节点  #    A         B       C  这三种情况都是可以处理的
+        if root == A or root == B:        #   / \       / \     /\
+            return root                   #  B null   null A   A  B
 
         left = self.lowestCommonAncestorII(root.left, A, B)
         right = self.lowestCommonAncestorII(root.right, A, B)
@@ -183,19 +201,53 @@ class Solution:
             '''
             return root
 
-        # case3：只有左边有内容，那就有可能左边是 A/B/LCA
+        # case3：只有左边有啥return啥 (有可能是A或B或LCA)
         if left:
             return left
 
-        # case4：只有右边有内容，那就有可能右边是 A/B/LCA
+        # case4：只有右边有啥return啥 (有可能是A或B或LCA)
         if right:
             return right
 
         # case5：能走到这，说明left和right都是空，没A也没B，return None
         return None
 
-    # 领扣 E 474 · Lowest Common Ancestor II 如果A和B不保证一定出现在树root里, 也不能用parent指针，怎么做？
-    def lowestCommonAncestorII4(self, root, A, B):
+    # 力扣M 236 Lowest Common Ancestor of a Binary Tree 这个方法其实就是力扣1676
+    def lowestCommonAncestorII2(self, root: 'TreeNode', A: 'TreeNode', B: 'TreeNode') -> 'TreeNode':
+        nodes = [A,B]
+
+        def recu_LCA(root):
+            if not root:
+                return None
+            if root in nodes:
+                return root
+
+            left, right = recu_LCA(root.left), recu_LCA(root.right)
+            if left and right:
+                return root
+            return left or right
+
+        return recu_LCA(root)
+
+    # 力扣M 1676 Lowest Common Ancestor of a Binary Tree 没父指针,要搜索的nodes都存储在list里，要搜索的nodes都一定在tree里找得到
+    def lowestCommonAncestorIII(self, root: 'TreeNode', nodes: 'List[TreeNode]') -> 'TreeNode':
+        nodes = set(nodes)
+
+        def recu_LCA(root):
+            if not root:
+                return None
+            if root in nodes:
+                return root
+
+            left, right = recu_LCA(root.left), recu_LCA(root.right)
+            if left and right:
+                return root
+            return left or right
+
+        return recu_LCA(root)
+
+    # 力扣M 1644 Lowest Common Ancestor of a Binary Tree 没父指针，A和B也不保证一定出现在树root里，怎么做？
+    def lowestCommonAncestorⅣ(self, root, A, B):
         """
         如果A和B不保证一定出现在树root里怎么做？ 视频讲解01:26:51 - 01:30:53
 
@@ -241,6 +293,8 @@ class Solution:
 
         # case5: left_node 和 right_node 都没内容，说明该返回return
         return is_a_existing, is_b_existing, None
+
+
 
     # 领扣 E 453 · Flatten Binary Tree to Linked List 这是很容易写的一个错误版本, 全局变量导致函数不纯粹
     def flatten1(self, root):

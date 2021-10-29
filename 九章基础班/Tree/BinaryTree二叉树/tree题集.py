@@ -37,7 +37,7 @@ class Solution:
 
         return True, root_height
 
-    # Lintcode(力扣104) Easy 97 · Maximum Depth of Binary Tree 其实就是求二叉树高度
+    # Lintcode(力扣104) Easy 97 · Maximum Depth of Binary Tree 求树高度
     def maxDepth1(self, root):
         """
         借助递归函数参量
@@ -56,12 +56,13 @@ class Solution:
         self.dfsForMaxDepth1(root.left, height + 1)
         self.dfsForMaxDepth1(root.right, height + 1)
 
-    # Lintcode(力扣104) Easy 97 · Maximum Depth of Binary Tree 一句话搞定的递归写法
+    # Lintcode(力扣104) Easy 97 · Maximum Depth of Binary Tree 求树高度，一句话搞定的递归写法
     def maxDepth2(self, root):
         if root is None:
-            return 0
-
-        return max(self.maxDepth2(root.left), self.maxDepth2(root.right)) + 1
+            return 0         # 因为当是空时候，高度是0
+        left_height = self.maxDepth2(root.left)
+        right_height = self.maxDepth2(root.right)
+        return max(left_height, right_height) + 1
 
     # Lintcode(力扣104) Easy 97 · Maximum Depth of Binary Tree 自己想的思路，不高级但还是写一下
     def maxDepth3(self, root):
@@ -81,7 +82,7 @@ class Solution:
         self.dfsForMaxDepth3(root.left, height + 1)
         self.dfsForMaxDepth3(root.right, height + 1)
 
-    # Lintcode(力扣111) Easy 155 · Minimum Depth of Binary Tree 自己最开始的写法用dfs，不高级但思路清晰
+    # Lintcode(力扣111) Easy 155 · Minimum Depth of Binary Tree 求tree的root到最近的leaf的高度 自己最开始的写法用dfs，不高级但思路清晰
     def minDepth1(self, root):
         if not root:
             return 0
@@ -179,7 +180,7 @@ class Solution:
                 if node.right:
                     queue.append(node.right)
 
-    # Lintcode Easy 482 · Binary Tree Level Sum 用BFS做的
+    # Lintcode Easy 482 · Binary Tree Level Sum 求树某一层的sum    用BFS做的
     def levelSum1(self, root, level):
         """
         用 BFS 做的，时间复杂度固定是O(n), 空间复杂度是 O(n)
@@ -227,8 +228,15 @@ class Solution:
             return root.val
         return self.levelSum2(root.left, level-1) + self.levelSum2(root.right, level-1)
 
-    # Lintcode(力扣623) Medium 1122 · Add One Row to Tree 自己用BFS做的
+    # Lintcode(力扣623) Medium 1122 · Add One Row to Tree 把value插入成tree某一高度的node  自己用BFS做的
     def addOneRow1(self, root, val, depth):
+        """
+      例子   4          4    value=1，depth = 2
+           / \        / \
+          2   3      1   1
+                    /     \
+                   2       3
+        """
         if depth == 1:
             new_root = TreeNode(val)
             new_root.left = root
@@ -291,9 +299,14 @@ class Solution:
             root.right = self.addOneRow2(root.right, v, d - 1)
         return root
 
-    # Lintcode(力扣199) Medium 760 · Binary Tree Right Side View  用BFS做的
+    # Lintcode(力扣199) Medium 760 · Binary Tree Right Side View 从右向左看,返回第一个看到的元素，从上到下 用BFS做的
     def rightSideView1(self, root):
         """
+        比如：
+            1
+           / \
+          2   3   返回[1,3]
+
         方法1的思路比较常规，是：BFS，分层遍历，取每层的最后一个放进list里就好
         """
         if not root:
@@ -333,7 +346,7 @@ class Solution:
         collect(root, 0)
         return res
 
-    # Lintcode(力扣572) Medium 245 · Subtree wk2_分治法 做法
+    # Lintcode(力扣572) Medium 245 · is Subtree wk2_分治法 做法
     def isSubtree1(self, T1, T2):
         """
         有几个edge case需要根面试官确认：
@@ -364,7 +377,7 @@ class Solution:
 
         return False
 
-    # Lintcode(力扣572) Medium 245 · Subtree   iterative做法，防止stack overflow
+    # Lintcode(力扣572) Medium 245 · is Subtree   iterative做法，防止stack overflow
     def isSubtree2(self, T1, T2):
         """
         由于题目说了，T1 with millions of nodes, and T2 with hundreds of nodes.
@@ -587,7 +600,7 @@ if __name__ == '__main__':
     root = build_tree4()
 
     sol = Solution()
-    l = sol.diameterOfBinaryTree(root)
+    l = sol.maxDepth2(root)
     print(l)
 
 

@@ -44,11 +44,13 @@ def build_tree1():
     return node_1
 def build_tree2():
     """
-        4
+        4 (3)
        / \
-      2   5
+  （2)2   5 (0)
      / \
-    1   3
+ (0)1   3 (1)
+         \
+         14 (0)
     """
     node_1 = TreeNode(4)
     node_2 = TreeNode(2)
@@ -64,6 +66,7 @@ def build_tree2():
     node_1.right = node_3
     node_2.left = node_4
     node_2.right = node_5
+    node_5.right = node_6
 
     return node_1
 def build_tree3():
@@ -158,6 +161,35 @@ def postorder_traverse(root):
     postorder_traverse(root.left)
     postorder_traverse(root.right)
     print(root.val, end=' ')
+
+# lintcode(力扣173) Medium 86 · Binary Search Tree Iterator按中序遍历的方式做Inorder traversal，其实这就是中序遍历iterative的写法
+class BSTIterator:
+    def __init__(self, root):
+        self.stack = []
+        # 初始化时从root开始一路向左走到最末端的节点，即全局最小值，并将一路访问过的节点加入到stack中
+        self._to_most_left_min(root)
+
+    def hasNext(self):
+        # stack[-1] 一直存放 iterator 指向的当前节点。因此在判断有没有下一个节点时，只需要判断 stack 是否为空。
+        return len(self.stack) > 0   # 或者写: return bool(self.stack)
+
+    # worst case O(h)，均摊下来访问每个节点的时间复杂度时O(1)
+    def _next(self):
+        # 异常检测
+        if len(self.stack) == 0: return None
+
+        next_node = self.stack.pop()
+
+        if next_node.right:  # 这句话不加其实也行，因为 next_node.right 是None的话也可以处理的
+            self._to_most_left_min(next_node.right)
+        return next_node
+
+    # 找全局最小值，一路向左，并将一路访问过的节点加入到stack中
+    # 这样最后一个加进去的当然就是最小值
+    def _to_most_left_min(self, root):
+        while root:
+            self.stack.append(root)
+            root = root.left
 
 class Solution:
     def __init__(self):
@@ -454,7 +486,7 @@ class Solution:
 
         return build_tree(0, len(pre) - 1, 0, len(post) - 1)
 
-    # lintcode(力扣366) Medium 650 · Find Leaves of Binary Tree 用map
+    # lintcode(力扣366) Medium 650 · Find Leaves of Binary Tree 自顶向上一层一层返回leaves,用map做,每一层key是高度，values是所有叶子集合
     def findLeaves1(self, root):
         """
         为什么需要用到DFS？
@@ -477,11 +509,20 @@ class Solution:
         下面这个方法比较好，跟上面有异曲同工，但去掉了sorting，就 placing each element (val) to
         its correct position in the solution map/array.
         遍历树获取每一个node的depth，再以depth为key储存相同depth的node.val在map里
+
+              4 (3)
+             / \
+        （2)2   5 (0)
+           / \
+        (0)1   3 (1)
+                \
+                14 (0)
+
         """
         ans = []
         self.height_map = {}
 
-        maxHeight = self.dfsForFindLeaves3(root)
+        maxHeight = self.dfsForFindLeaves1(root)
 
         for i in range(maxHeight + 1):
             ans.append(self.height_map.get(i))
@@ -492,7 +533,7 @@ class Solution:
         if node is None:
             return -1
 
-        cur_height = max(self.dfsForFindLeaves3(node.left), self.dfsForFindLeaves3(node.right)) + 1
+        cur_height = max(self.dfsForFindLeaves1(node.left), self.dfsForFindLeaves1(node.right)) + 1
 
         if cur_height not in self.height_map:
             # put cur_height into key
@@ -1028,7 +1069,7 @@ class Solution:
 
         return left_head, right_tail
 
-    # Lintcode(力扣652) Medium 1108 · Find Duplicate Subtrees
+    # Lintcode(力扣652) Medium 1108 · Find Duplicate Subtrees 给两个树,return all duplicate subtrees
     def findDuplicateSubtrees(self, root):
         """
         将一棵二叉树的所有结点作为根节点进行序列化，记录该前序序列化字符串出现的次数。
@@ -1051,41 +1092,18 @@ class Solution:
         collect(root)
         return ans
 
-# lintcode(力扣173) Medium 86 · Binary Search Tree Iterator
-class BSTIterator:
-    def __init__(self, root):
-        self.stack = []
-        # 初始化时从root开始一路向左走到最末端的节点，即全局最小值，并将一路访问过的节点加入到stack中
-        self._to_most_left_min(root)
-
-    def hasNext(self):
-        # stack[-1] 一直存放 iterator 指向的当前节点。因此在判断有没有下一个节点时，只需要判断 stack 是否为空。
-        return len(self.stack) > 0   # 或者写: return bool(self.stack)
-
-    # worst case O(h)，均摊下来访问每个节点的时间复杂度时O(1)
-    def _next(self):
-        # 异常检测
-        if len(self.stack) == 0: return None
-
-        next_node = self.stack.pop()
-
-        if next_node.right:  # 这句话不加其实也行，因为 next_node.right 是None的话也可以处理的
-            self._to_most_left_min(next_node.right)
-        return next_node
-
-    # 找全局最小值，一路向左，并将一路访问过的节点加入到stack中
-    # 这样最后一个加进去的当然就是最小值
-    def _to_most_left_min(self, root):
-        while root:
-            self.stack.append(root)
-            root = root.left
 
 
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
 
 if __name__ == '__main__':
     root = build_tree2()
     sol = Solution()
-    res = sol.inorderTraversal_iterative2(root)
+    res = sol.findLeaves1(root)
     print(res)
 
 

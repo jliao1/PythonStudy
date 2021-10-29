@@ -2,7 +2,7 @@ from collections import deque
 
 class Solution:
 
-    # Leetcode Easy 20. Valid Parentheses
+    # Leetcode Easy 20. Valid Parenthesis
     def isValid(self, s: str) -> bool:
         if not s:
             return True
