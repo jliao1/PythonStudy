@@ -1,3 +1,10 @@
+"""
+[对于字符的排序]
+words1 = ["apple", "app"] #                  短的在前
+words2 = sorted(words1)   # words2 = 排序后是 ["app", "apple"]
+
+"""
+
 # build-in type不能重载  运算符重载 (Operator overloading)
 
 # 对类 object 的比较符号重载，写法1: (class内)  heapq,sort()，min(),max()都可以直接用 不用写(key = lambda x : x[0])

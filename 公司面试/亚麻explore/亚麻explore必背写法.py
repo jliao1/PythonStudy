@@ -60,8 +60,8 @@ str.isalnum()  返回真如果all characters in the string are alphanumeric
     count = [0] * 26
     count[ord(当前字母) - ord('a')] += 1 # 出现在那一位+1
 【二进制和十进制互换】
-    to_binary = bin(integer)
-    to_decimal = int(str,2)
+    to_binary = bin(5)             # 出来是个string: '0b101'
+    to_decimal = int(to_binary, 2) # 出来时个十进制的int: 5
 【正则表达式】对string的提取
     import re
     paragraph = "Bob hit a221 ball123, the hit BALL flew far after it was hit."

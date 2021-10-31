@@ -482,7 +482,7 @@ class Solution:
         # 最后一次计算结果了，并返回 (如果这已经是最后一个数了，不需要计算了，那么此时的currOperand是0，相当于就只返回currRes啦)
         return currRes + currSign * currOperand
 
-    # leetcode 227 Medium Basic Calculator II ()，本题不包含括号和非负数, 写法不错用到了enumerate
+    # leetcode 227 Medium Basic Calculator II ()，本题不包含括号和非负数, 写法不错用到了enumerate 这个写法最好理解
     def basicCalculatorII1(self, s: str) -> int:
         """
         思路跟力扣224像的地方在于，operator 滞后 currNumber 一轮 进行处理

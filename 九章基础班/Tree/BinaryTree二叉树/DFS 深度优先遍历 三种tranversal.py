@@ -1015,7 +1015,7 @@ class Solution:
         return max(left_height, right_height) + 1
 
 
-    # Lintcode Medium 1534 · Convert Binary Search Tree to Sorted Doubly Linked List
+    # Lintcode Medium(力扣426) 1534 · Convert Binary Search Tree to Sorted Doubly Linked List
     def treeToDoublyList(self, root):
         """
         Each node in a doubly linked list has a predecessor and successor

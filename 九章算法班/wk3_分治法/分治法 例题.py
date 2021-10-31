@@ -111,13 +111,13 @@ class Solution:
         # Add A's parents into Set
         temp_parent = A
         while temp_parent:
-            Set.add(temp_parent.val)
+            Set.add(temp_parent)
             temp_parent = temp_parent.parent
 
         # Iterate B's parent node， its first parent appeared in Set is their common ancestor
         temp_parent = B
         while temp_parent:
-            if temp_parent.val in Set:
+            if temp_parent in Set:
                 return temp_parent
             temp_parent = temp_parent.parent
 
