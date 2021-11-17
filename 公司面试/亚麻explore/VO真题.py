@@ -77,7 +77,7 @@
 #
 
 class Solution:
-    # 建图然后BFS  https: // leetcode.com / discuss / interview - question / 483660 / google - phone - currency - conversion
+    # 建图然后BFS  https://leetcode.com/discuss/interview-question/483660/google-phone-currency-conversion
     def func(self, r, tf):
         g = self.graph(r)
         '''
