@@ -319,7 +319,7 @@ def partition(self, nums, start, end, k):
         # pivot 右区间都大于等于 pivot
         return self.partition(nums, left, end, k)
 
-    # 情况3: left < k < right, right 和 left 中间隔了一个数，这个数就刚好是我们要找的数
+    # 情况3: right 和 left 中间隔了一个数，这个数就刚好是我们要找的数
     return nums[k]
 
 # lintcode Medium 148 · Sort Colors 方法是 counting sort

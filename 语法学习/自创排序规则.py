@@ -28,5 +28,5 @@ class NumStr:
     def __lt__(self, other):
         return self.v + other.v < other.v + self.v
 
-A = ["12", "121"]
+A = ["12", "121"]   #  121应该在前，因为 12112 > 12121
 A.sort(key = NumStr)

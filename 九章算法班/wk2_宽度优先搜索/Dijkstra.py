@@ -12,9 +12,9 @@ class Solution:
     3. 按什么元素来计算min或max？按一个元素的列来计算，比如 (x，y，z) 先比x再比y再比z
     4. 一个普通list要先heapify才能正常pop和push；但如果是空list，就直接pop和push了
     5. 这俩maybe好用
-        List2 = heapq.nlargest(n ,List1, key=lambda x: x[1]) 从 List1 中返回前n个最大的元素组成一个新的List返回，以什么为标准排序key定
+        List2 = heapq.nlargest(k ,List1, key=lambda x: x[1]) 从 List1 中返回前k个最大的元素组成一个新的List返回，以什么为标准排序key定 时间复杂度是 nlogk
         List1 不用先 heapify，当然如果只返回1个数字的话还是用 min() max() 效率高
-        List2 = heapq.nsmalles(n ,List1, key=lambda x: x[1]) 从 List1 中返回前n个最小的元素组成一个新的List返回，以什么为标准排序key定
+        List2 = heapq.nsmalles(k ,List1, key=lambda x: x[1]) 从 List1 中返回前k个最小的元素组成一个新的List返回，以什么为标准排序key定 时间复杂度是 nlogk
     """
 
     # 力扣M 505 The Maze II 复杂图的最短路径，用Dijkstra来解决的（更简单的看写法2）

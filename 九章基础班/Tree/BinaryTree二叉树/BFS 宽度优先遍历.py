@@ -263,7 +263,7 @@ class Solution:
 
         return list
 
-    # lintcode Medium 71 · Binary Tree Zigzag Level Order Traversal 这个只是用正常的bfs做，需要逆序的时候翻转一下列表再append，思路最简单吧
+    # lintcode Medium 71 · :Binary Tree Zigzag Level Order Traversal 这个只是用正常的bfs做，需要逆序的时候翻转一下列表再append，思路最简单吧
     def zigzagLevelOrder3(self, root):
         """
         题目主要思路： BFS + Queue + 翻转
